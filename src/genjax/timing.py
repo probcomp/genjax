@@ -3,7 +3,7 @@
 import time
 import jax
 import jax.numpy as jnp
-from typing import Callable, Tuple, Any, Optional
+from typing import Callable, Any, Optional
 
 
 def timing(
@@ -11,7 +11,7 @@ def timing(
     repeats: int = 20,
     inner_repeats: int = 20,
     auto_sync: bool = True,
-) -> Tuple[jnp.ndarray, Tuple[float, float]]:
+) -> tuple[jnp.ndarray, tuple[float, float]]:
     """Benchmark function execution time with multiple runs.
 
     This function provides consistent timing methodology across all GenJAX case studies.
@@ -72,7 +72,7 @@ def benchmark_with_warmup(
     repeats: int = 10,
     inner_repeats: int = 10,
     auto_sync: bool = True,
-) -> Tuple[jnp.ndarray, Tuple[float, float]]:
+) -> tuple[jnp.ndarray, tuple[float, float]]:
     """Benchmark function with automatic JIT warm-up runs.
 
     Convenience function that handles the common pattern of running warm-up
