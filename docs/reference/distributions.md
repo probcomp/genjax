@@ -46,10 +46,11 @@ from genjax import distributions
 log_prob_bern, _ = distributions.bernoulli.assess(1, 0.7)
 print(f"Log prob of 1 under Bernoulli(0.7): {log_prob_bern:.3f}")
 
-# Categorical distribution
+# Categorical distribution (uses logits, not probs)
 probs = jnp.array([0.2, 0.3, 0.5])
-log_prob_cat, _ = distributions.categorical.assess(2, probs)
-print(f"Log prob of category 2 under Categorical({probs}): {log_prob_cat:.3f}")
+logits = jnp.log(probs)
+log_prob_cat, _ = distributions.categorical.assess(2, logits)
+print(f"Log prob of category 2 under Categorical(probs={probs}): {log_prob_cat:.3f}")
 
 # Poisson distribution
 log_prob_pois, _ = distributions.poisson.assess(4, 3.0)
@@ -65,7 +66,7 @@ print("- normal(mu, sigma)")
 print("- beta(alpha, beta)")
 print("- exponential(rate)")
 print("- bernoulli(p)")
-print("- categorical(probs)")
+print("- categorical(logits)  # Note: uses logits, not probs")
 print("- poisson(rate)")
 print("- gamma(concentration, rate)")
 print("- uniform(low, high)")

@@ -188,16 +188,13 @@ Example:
     import jax.numpy as jnp
     from genjax import distributions
     
-    # Create a key for randomness
-    key = jax.random.PRNGKey(42)
-    
-    # Sample from normal distribution
-    trace = distributions.normal.simulate(key, (0.0, 1.0))
-    sample = trace.retval
+    # Sample from normal distribution  
+    trace = distributions.normal.simulate(0.0, 1.0)
+    sample = trace.get_retval()
     print(f"Sample from Normal(0, 1): {sample:.3f}")
     
     # Evaluate log probability
-    log_prob, _ = distributions.normal.assess(1.5, (0.0, 1.0))
+    log_prob, _ = distributions.normal.assess(1.5, 0.0, 1.0)
     print(f"Log prob of 1.5 under Normal(0, 1): {log_prob:.3f}")
     
     # Use in a generative function
@@ -210,10 +207,9 @@ Example:
         return x + y
     
     # Simulate the model
-    key, subkey = jax.random.split(key)
-    trace = model.simulate(subkey, ())
-    print(f"Model output: {trace.retval:.3f}")
-    print(f"Choices: x={trace['x']:.3f}, y={trace['y']:.3f}")
+    trace = model.simulate()
+    print(f"Model output: {trace.get_retval():.3f}")
+    print(f"Choices: x={trace.get_choices()['x']:.3f}, y={trace.get_choices()['y']:.3f}")
     ```
 
 References:

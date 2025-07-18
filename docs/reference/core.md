@@ -46,11 +46,14 @@ from genjax import gen, distributions
 def coin_flip_model(n_flips):
     """A simple coin flipping model with unknown bias."""
     bias = distributions.beta(1.0, 1.0) @ "bias"
-    flips = []
-    for i in range(n_flips):
-        flip = distributions.bernoulli(bias) @ f"flip_{i}"
-        flips.append(flip)
-    return jnp.array(flips)
+    
+    # For demonstration, we'll show manual unrolling
+    # In practice, use Scan combinator for loops
+    flip_0 = distributions.bernoulli(bias) @ "flip_0"
+    flip_1 = distributions.bernoulli(bias) @ "flip_1" 
+    flip_2 = distributions.bernoulli(bias) @ "flip_2"
+    
+    return jnp.array([flip_0, flip_1, flip_2])
 
 print("Model defined successfully!")
 ```
@@ -66,11 +69,14 @@ from genjax import gen, distributions
 def coin_flip_model(n_flips):
     """A simple coin flipping model with unknown bias."""
     bias = distributions.beta(1.0, 1.0) @ "bias"
-    flips = []
-    for i in range(n_flips):
-        flip = distributions.bernoulli(bias) @ f"flip_{i}"
-        flips.append(flip)
-    return jnp.array(flips)
+    
+    # For demonstration, we'll show manual unrolling
+    # In practice, use Scan combinator for loops
+    flip_0 = distributions.bernoulli(bias) @ "flip_0"
+    flip_1 = distributions.bernoulli(bias) @ "flip_1" 
+    flip_2 = distributions.bernoulli(bias) @ "flip_2"
+    
+    return jnp.array([flip_0, flip_1, flip_2])
 
 # Assess the log probability of specific choices
 choices = {"bias": 0.7, "flip_0": 1, "flip_1": 1, "flip_2": 0}
@@ -88,10 +94,10 @@ from genjax import sel, Selection
 
 # Create various selections
 s1 = sel("bias")  # Select only bias
-s2 = sel("flip_0", "flip_1")  # Select two flips
+s2 = sel("flip_0") | sel("flip_1")  # Select two flips with OR
 s3 = sel("bias") | sel("flip_2")  # Select bias OR flip_2
 
 print(f"Selection s1 targets: bias")
-print(f"Selection s2 targets: flip_0, flip_1")
+print(f"Selection s2 targets: flip_0 or flip_1")
 print(f"Selection s3 targets: bias or flip_2")
 ```
