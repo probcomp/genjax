@@ -25,6 +25,10 @@ figs/
 examples/**/figs/*.pdf
 examples/**/figs/*.png
 
+# Benchmark JSON data files
+examples/timing-benchmarks/archive/**/*.json
+examples/timing-benchmarks/data/**/*.json
+
 # Image files (except in asset directories)
 *.png
 *.jpg
