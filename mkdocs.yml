@@ -98,6 +98,7 @@ nav:
   - Getting Started:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quickstart.md
+    - Best Practices: getting-started/best-practices.md
     - Tutorial: getting-started/tutorial.md
   - Core API:
     - Overview: api/overview.md
@@ -118,4 +119,9 @@ nav:
     - Overview: examples/overview.md
     - Simple Models: examples/simple-models.md
     - Hierarchical Models: examples/hierarchical-models.md
-  - API Reference: reference/index.md
+  - API Reference:
+    - Overview: reference/index.md
+    - Core: reference/core.md
+    - Distributions: reference/distributions.md
+    - MCMC: reference/mcmc.md
+    - SMC: reference/smc.md
