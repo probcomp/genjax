@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+\centering
+\caption{GPU Benchmark Results: Runtime (ms) and Speedup}
+\label{tab:gpu-benchmarks}
+\begin{tabular}{lrrr}
+\toprule
+Framework & N=1,000.0 & N=5,000.0 & N=10,000.0 \\
+\midrule
+Ours & 0.03 (481.7×) & 0.03 (3573.1×) & 0.03 (7254.9×) \\
+Gen.jl & 16.71 (1.0×) & 123.17 (1.0×) & 250.35 (1.0×) \\
+Handcoded JAX & 0.03 (555.0×) & 0.03 (4107.1×) & 0.03 (8091.2×) \\
+Handcoded PyTorch & 0.35 (48.4×) & 0.39 (318.6×) & 0.44 (569.1×) \\
+NumPyro & 0.05 (347.4×) & 0.09 (1369.1×) & 0.09 (2668.2×) \\
+Pyro & 0.81 (20.7×) & 0.80 (153.1×) & 0.82 (304.9×) \\
+\bottomrule
+\end{tabular}
+\end{table}
