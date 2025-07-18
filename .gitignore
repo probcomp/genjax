@@ -3,7 +3,7 @@
 __pycache__
 .DS_Store
 .ruff_cache
-docs
+site
 .vscode
 .pytest_cache
 
