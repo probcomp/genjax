@@ -15,65 +15,58 @@ Built-in probability distributions that implement the Generative Function Interf
 
 ### Continuous Distributions
 
-```pycon exec="true" source="material-block"
->>> import jax
->>> import jax.numpy as jnp
->>> from genjax import distributions
->>> 
->>> key = jax.random.PRNGKey(42)
->>> 
->>> # Normal distribution
->>> normal_sample = distributions.normal.simulate(key, (0.0, 1.0))
->>> print(f"Normal sample: {normal_sample.retval:.3f}")
->>> 
->>> # Beta distribution
->>> key, subkey = jax.random.split(key)
->>> beta_sample = distributions.beta.simulate(subkey, (2.0, 2.0))
->>> print(f"Beta sample: {beta_sample.retval:.3f}")
->>> 
->>> # Assess log probability
->>> log_prob, _ = distributions.normal.assess(1.5, (0.0, 1.0))
->>> print(f"Log prob of 1.5 under N(0,1): {log_prob:.3f}")
+```python exec="true" source="material-block"
+import jax.numpy as jnp
+from genjax import distributions
+
+# Assess log probability under various distributions
+x = 1.5
+
+# Normal distribution
+log_prob_normal, _ = distributions.normal.assess(x, 0.0, 1.0)
+print(f"Log prob of {x} under Normal(0, 1): {log_prob_normal:.3f}")
+
+# Beta distribution (x must be in [0, 1])
+x_beta = 0.7
+log_prob_beta, _ = distributions.beta.assess(x_beta, 2.0, 2.0)
+print(f"Log prob of {x_beta} under Beta(2, 2): {log_prob_beta:.3f}")
+
+# Exponential distribution
+log_prob_exp, _ = distributions.exponential.assess(x, 1.0)
+print(f"Log prob of {x} under Exponential(1): {log_prob_exp:.3f}")
 ```
 
 ### Discrete Distributions
 
-```pycon exec="true" source="material-block"
->>> # Bernoulli distribution
->>> key, subkey = jax.random.split(key)
->>> coin_flip = distributions.bernoulli.simulate(subkey, (0.7,))
->>> print(f"Coin flip (p=0.7): {coin_flip.retval}")
->>> 
->>> # Categorical distribution
->>> key, subkey = jax.random.split(key)
->>> probs = jnp.array([0.2, 0.3, 0.5])
->>> category = distributions.categorical.simulate(subkey, (probs,))
->>> print(f"Category (probs={probs}): {category.retval}")
->>> 
->>> # Poisson distribution
->>> key, subkey = jax.random.split(key)
->>> count = distributions.poisson.simulate(subkey, (3.0,))
->>> print(f"Poisson count (λ=3): {count.retval}")
+```python exec="true" source="material-block"
+import jax.numpy as jnp
+from genjax import distributions
+
+# Bernoulli distribution
+log_prob_bern, _ = distributions.bernoulli.assess(1, 0.7)
+print(f"Log prob of 1 under Bernoulli(0.7): {log_prob_bern:.3f}")
+
+# Categorical distribution
+probs = jnp.array([0.2, 0.3, 0.5])
+log_prob_cat, _ = distributions.categorical.assess(2, probs)
+print(f"Log prob of category 2 under Categorical({probs}): {log_prob_cat:.3f}")
+
+# Poisson distribution
+log_prob_pois, _ = distributions.poisson.assess(4, 3.0)
+print(f"Log prob of 4 under Poisson(3.0): {log_prob_pois:.3f}")
 ```
 
-### Vectorized Operations
+### Distribution Parameters
 
-```pycon exec="true" source="material-block"
->>> # Vectorized sampling with vmap
->>> from genjax import gen
->>> 
->>> @gen
-... def vectorized_normal(n):
-...     # Sample n values from standard normal
-...     samples = distributions.normal(0.0, 1.0).vmap().apply(jnp.arange(n))
-...     return samples
-... 
->>> key, subkey = jax.random.split(key)
->>> trace = vectorized_normal.simulate(subkey, (5,))
->>> print(f"Vectorized samples shape: {trace.retval.shape}")
->>> print(f"Samples: {trace.retval}")
->>> 
->>> # Access individual vectorized choices
->>> for i in range(5):
-...     print(f"  vmap/sample_{i}: {trace[f'vmap/sample_{i}']:.3f}")
+```python exec="true" source="material-block"
+# Distributions are parameterized by their standard parameters
+print("Common distribution parameterizations:")
+print("- normal(mu, sigma)")
+print("- beta(alpha, beta)")
+print("- exponential(rate)")
+print("- bernoulli(p)")
+print("- categorical(probs)")
+print("- poisson(rate)")
+print("- gamma(concentration, rate)")
+print("- uniform(low, high)")
 ```
