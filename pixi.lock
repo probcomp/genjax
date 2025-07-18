@@ -1720,6 +1720,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/22/41/5551f05c0e6430e3d2dcbd40965840a4cf280c045a529552690f04b7c0a0/markdown_exec-1.11.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/33/55/af02708f230eb77084a299d7b08175cff006dea4f2721074b92cdb0296c0/ordered_set-4.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a2/22/2ab6b762b58e37e7a4004a504eff9f975d96f755cb1256ab422194312bbc/penzai-0.2.5-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/e6/17/8306a0bcd8c88d7761c2e73e831b0be026cd6873ce1f12beb3b4c9a03ffa/pygments_ansi_color-0.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fe/b6/e116761ceeb880b7ad4c6a7e1203538754dd7dda42538f08d6daaf8dfa4d/tensorflow_probability-0.25.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e4/09/b7e7bc5f21313d227e4fb98d2037646457ec06746327c5dd8ffed75e41e1/treescope-0.1.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/8d/96/04e7b441807b26b794da5b11e59ed7f83b2cf8af202bd7eba8ad2fa6046e/wadler_lindig-0.1.7-py3-none-any.whl
@@ -1851,6 +1852,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/22/41/5551f05c0e6430e3d2dcbd40965840a4cf280c045a529552690f04b7c0a0/markdown_exec-1.11.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/33/55/af02708f230eb77084a299d7b08175cff006dea4f2721074b92cdb0296c0/ordered_set-4.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a2/22/2ab6b762b58e37e7a4004a504eff9f975d96f755cb1256ab422194312bbc/penzai-0.2.5-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/e6/17/8306a0bcd8c88d7761c2e73e831b0be026cd6873ce1f12beb3b4c9a03ffa/pygments_ansi_color-0.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fe/b6/e116761ceeb880b7ad4c6a7e1203538754dd7dda42538f08d6daaf8dfa4d/tensorflow_probability-0.25.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e4/09/b7e7bc5f21313d227e4fb98d2037646457ec06746327c5dd8ffed75e41e1/treescope-0.1.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/8d/96/04e7b441807b26b794da5b11e59ed7f83b2cf8af202bd7eba8ad2fa6046e/wadler_lindig-0.1.7-py3-none-any.whl
@@ -1982,6 +1984,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/22/41/5551f05c0e6430e3d2dcbd40965840a4cf280c045a529552690f04b7c0a0/markdown_exec-1.11.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/33/55/af02708f230eb77084a299d7b08175cff006dea4f2721074b92cdb0296c0/ordered_set-4.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a2/22/2ab6b762b58e37e7a4004a504eff9f975d96f755cb1256ab422194312bbc/penzai-0.2.5-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/e6/17/8306a0bcd8c88d7761c2e73e831b0be026cd6873ce1f12beb3b4c9a03ffa/pygments_ansi_color-0.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fe/b6/e116761ceeb880b7ad4c6a7e1203538754dd7dda42538f08d6daaf8dfa4d/tensorflow_probability-0.25.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e4/09/b7e7bc5f21313d227e4fb98d2037646457ec06746327c5dd8ffed75e41e1/treescope-0.1.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/8d/96/04e7b441807b26b794da5b11e59ed7f83b2cf8af202bd7eba8ad2fa6046e/wadler_lindig-0.1.7-py3-none-any.whl
@@ -10278,7 +10281,7 @@ packages:
 - pypi: .
   name: genjax
   version: 0.1.0
-  sha256: 9be9a3fa030ea93592821d80ef333bc213d728c10720ec4bb72c661739d10bce
+  sha256: 9d295775965f235412c148360a5a55496e5b3aad399f50c834ea415aa4fe9c86
   requires_dist:
   - penzai>=0.2.5,<0.3
   - beartype>=0.21.0,<0.22
@@ -13521,6 +13524,13 @@ packages:
   - pkg:pypi/pygments?source=compressed-mapping
   size: 889287
   timestamp: 1750615908735
+- pypi: https://files.pythonhosted.org/packages/e6/17/8306a0bcd8c88d7761c2e73e831b0be026cd6873ce1f12beb3b4c9a03ffa/pygments_ansi_color-0.3.0-py3-none-any.whl
+  name: pygments-ansi-color
+  version: 0.3.0
+  sha256: 7eb063feaecadad9d4d1fd3474cbfeadf3486b64f760a8f2a00fc25392180aba
+  requires_dist:
+  - pygments!=2.7.3
+  requires_python: '>=3.7'
 - pypi: https://files.pythonhosted.org/packages/0c/71/1b25d3797a24add00f6f8c1bb0ac03a38616e2ec6606f598c1d50b0b0ffb/pyhamcrest-2.1.0-py3-none-any.whl
   name: pyhamcrest
   version: 2.1.0

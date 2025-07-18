@@ -61,7 +61,6 @@ plugins:
             line_length: 80
   - markdown-exec:
       ansi: required
-      fence: ["pycon", "python"]
 
 markdown_extensions:
   - pymdownx.highlight:
