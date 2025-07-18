@@ -256,6 +256,19 @@ programmable-mcts = { features = ["programmable_mcts"], solve-group = "default" 
 programmable-mcts-cuda = { features = ["programmable_mcts", "cuda"], solve-group = "cuda" }
 timing-benchmarks = { features = ["timing_benchmarks"], solve-group = "default" }
 timing-benchmarks-cuda = { features = ["timing_benchmarks", "cuda"], solve-group = "cuda" }
+docs = { features = ["docs"], solve-group = "default" }
+
+[tool.pixi.feature.docs.dependencies]
+mkdocs = ">=1.5.3,<2"
+mkdocs-material = ">=9.5,<10"
+mkdocstrings = ">=0.24,<1"
+mkdocstrings-python = ">=1.8,<2"
+pymdown-extensions = ">=10.7,<11"
+
+[tool.pixi.feature.docs.tasks]
+docs-serve = "mkdocs serve"
+docs-build = "mkdocs build"
+docs-deploy = "mkdocs gh-deploy --force"
 
 [tool.pixi.feature.format.dependencies]
 nodejs = "*"

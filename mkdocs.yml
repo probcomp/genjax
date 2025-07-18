@@ -1,0 +1,121 @@
+site_name: GenJAX
+site_description: A JAX-based probabilistic programming language with programmable inference
+site_author: GenJAX Contributors
+site_url: https://femtomc.github.io/genjax/
+repo_name: femtomc/genjax
+repo_url: https://github.com/femtomc/genjax
+
+theme:
+  name: material
+  language: en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - toc.follow
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_source: true
+            show_signature_annotations: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            show_root_heading: true
+            show_root_full_path: false
+            merge_init_into_class: true
+            separate_signature: true
+            line_length: 80
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.arithmatex:
+      generic: true
+  - admonition
+  - footnotes
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Tutorial: getting-started/tutorial.md
+  - Core API:
+    - Overview: api/overview.md
+    - Generative Functions: api/generative-functions.md
+    - Distributions: api/distributions.md
+    - Traces: api/traces.md
+    - Combinators: api/combinators.md
+  - Inference:
+    - Overview: inference/overview.md
+    - MCMC: inference/mcmc.md
+    - SMC: inference/smc.md
+    - Variational Inference: inference/vi.md
+  - Advanced:
+    - PJAX: advanced/pjax.md
+    - Gradient Estimators: advanced/gradient-estimators.md
+    - State Interpreter: advanced/state-interpreter.md
+  - Examples:
+    - Overview: examples/overview.md
+    - Simple Models: examples/simple-models.md
+    - Hierarchical Models: examples/hierarchical-models.md
+  - API Reference: reference/index.md
