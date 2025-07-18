@@ -24,7 +24,7 @@ jobs:
       - name: Setup Pixi
         uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          pixi-version: v0.38.0
+          pixi-version: v0.43.0
 
       - name: Install documentation dependencies
         run: pixi install -e docs
