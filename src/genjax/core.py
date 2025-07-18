@@ -426,14 +426,25 @@ def const(a: A) -> Const[A]:
         A Const wrapper that keeps the value static in JAX transformations.
 
     Example:
-        >>> length = const(10)  # Static length for scan
-        >>> # @gen
-        >>> # def model(n: Const[int]):
-        >>> #     scan_gf = Scan(step_fn, length=n.value)
-        >>> #     return scan_gf(args)
-        >>> # trace = model(length, other_args)
-        >>> length.value
-        10
+        ```python exec="yes" html="true" source="material-block" session="const"
+        from genjax import const, Const
+        
+        # Create a static value
+        length = const(10)
+        print(f"Value: {length.value}")
+        print(f"Type: {type(length)}")
+        
+        # Use in arithmetic
+        doubled = length * 2
+        print(f"Doubled: {doubled.value}")
+        
+        # Use as static parameter
+        # @gen
+        # def model(n: Const[int]):
+        #     # n.value is guaranteed to be Python int, not JAX tracer
+        #     for i in range(n.value):  # This works in JAX transforms!
+        #         ...
+        ```
     """
     return Const(a)
 
@@ -981,21 +992,32 @@ def sel(*v: tuple[()] | str | tuple[str, ...] | dict[str, Any] | None) -> Select
         Selection object that can be used with regenerate methods
 
     Examples:
-        ```python
+        ```python exec="yes" html="true" source="material-block" session="selection"
+        from genjax import sel
+        
         # Select specific address
-        sel("x")                    # Matches address "x"
+        s1 = sel("x")
+        print(f"sel('x'): {s1}")
         
         # Select hierarchical address
-        sel(("outer", "inner"))     # Matches hierarchical path outer/inner
-
+        s2 = sel(("outer", "inner"))
+        print(f"sel(('outer', 'inner')): {s2}")
+        
         # Select all addresses
-        sel(())                     # Matches all addresses
-
+        s3 = sel(())
+        print(f"sel(()): {s3}")
+        
         # Select no addresses
-        sel() or sel(None)          # Matches no addresses
-
-        # Select nested addresses
-        sel({"outer": sel("inner")}) # Matches "outer"/"inner"
+        s4 = sel()
+        print(f"sel(): {s4}")
+        
+        # Combine selections with OR
+        s5 = sel("x") | sel("y")
+        print(f"sel('x') | sel('y'): {s5}")
+        
+        # Complement selection
+        s6 = ~sel("x")
+        print(f"~sel('x'): {s6}")
         ```
     """
     assert len(v) <= 1

@@ -266,7 +266,8 @@ mkdocstrings-python = ">=1.8,<2"
 pymdown-extensions = ">=10.7,<11"
 
 [tool.pixi.feature.docs.pypi-dependencies]
-markdown-exec = { version = ">=1.9,<2", extras = ["ansi"] }
+markdown-exec = { version = ">=1.8.3,<2", extras = ["ansi"] }
+
 
 [tool.pixi.feature.docs.tasks]
 docs-serve = "mkdocs serve"

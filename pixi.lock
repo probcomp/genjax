@@ -10281,7 +10281,7 @@ packages:
 - pypi: .
   name: genjax
   version: 0.1.0
-  sha256: 9d295775965f235412c148360a5a55496e5b3aad399f50c834ea415aa4fe9c86
+  sha256: 7b9d1c53513c3925d9ec4175af78e62e474aee77496c84f5816d19df58e289bd
   requires_dist:
   - penzai>=0.2.5,<0.3
   - beartype>=0.21.0,<0.22
@@ -10610,7 +10610,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/jinja2?source=compressed-mapping
+  - pkg:pypi/jinja2?source=hash-mapping
   size: 112714
   timestamp: 1741263433881
 - conda: https://conda.anaconda.org/conda-forge/linux-64/keyutils-1.6.1-h166bdaf_0.tar.bz2

@@ -182,6 +182,40 @@ Args:
     loc: Mean of the distribution μ.
     scale: Standard deviation σ (> 0).
 
+Example:
+    ```python exec="yes" html="true" source="material-block" session="normal"
+    import jax
+    import jax.numpy as jnp
+    from genjax import distributions
+    
+    # Create a key for randomness
+    key = jax.random.PRNGKey(42)
+    
+    # Sample from normal distribution
+    trace = distributions.normal.simulate(key, (0.0, 1.0))
+    sample = trace.retval
+    print(f"Sample from Normal(0, 1): {sample:.3f}")
+    
+    # Evaluate log probability
+    log_prob, _ = distributions.normal.assess(1.5, (0.0, 1.0))
+    print(f"Log prob of 1.5 under Normal(0, 1): {log_prob:.3f}")
+    
+    # Use in a generative function
+    from genjax import gen
+    
+    @gen
+    def model():
+        x = distributions.normal(0.0, 1.0) @ "x"
+        y = distributions.normal(x, 0.1) @ "y"
+        return x + y
+    
+    # Simulate the model
+    key, subkey = jax.random.split(key)
+    trace = model.simulate(subkey, ())
+    print(f"Model output: {trace.retval:.3f}")
+    print(f"Choices: x={trace['x']:.3f}, y={trace['y']:.3f}")
+    ```
+
 References:
     .. [1] Patel, J. K., & Read, C. B. (1996). "Handbook of the Normal
            Distribution". Marcel Dekker, 2nd edition.
