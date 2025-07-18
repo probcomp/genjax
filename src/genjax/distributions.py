@@ -183,7 +183,7 @@ Args:
     scale: Standard deviation σ (> 0).
 
 Example:
-    ```python exec="yes" html="true" source="material-block" session="normal"
+    ```python
     import jax
     import jax.numpy as jnp
     from genjax import distributions

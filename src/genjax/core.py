@@ -426,7 +426,7 @@ def const(a: A) -> Const[A]:
         A Const wrapper that keeps the value static in JAX transformations.
 
     Example:
-        ```python exec="yes" html="true" source="material-block" session="const"
+        ```python
         from genjax import const, Const
         
         # Create a static value
@@ -992,7 +992,7 @@ def sel(*v: tuple[()] | str | tuple[str, ...] | dict[str, Any] | None) -> Select
         Selection object that can be used with regenerate methods
 
     Examples:
-        ```python exec="yes" html="true" source="material-block" session="selection"
+        ```python
         from genjax import sel
         
         # Select specific address
