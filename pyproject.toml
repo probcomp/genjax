@@ -265,6 +265,9 @@ mkdocstrings = ">=0.24,<1"
 mkdocstrings-python = ">=1.8,<2"
 pymdown-extensions = ">=10.7,<11"
 
+[tool.pixi.feature.docs.pypi-dependencies]
+markdown-exec = ">=1.9,<2"
+
 [tool.pixi.feature.docs.tasks]
 docs-serve = "mkdocs serve"
 docs-build = "mkdocs build"

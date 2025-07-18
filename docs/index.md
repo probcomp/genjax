@@ -1,42 +1,20 @@
-# GenJAX
+# GenJAX API Reference
 
-GenJAX is a JAX-based probabilistic programming language that provides a **Generative Function Interface (GFI)** for writing and composing probabilistic models with programmable inference.
+JAX-based probabilistic programming with programmable inference.
 
-## Quick Example
+## Installation
 
-```python
-import jax
-import jax.numpy as jnp
-from genjax import gen, distributions
-
-@gen
-def coin_flips(n):
-    p = distributions.beta(1.0, 1.0) @ "bias"
-    for i in range(n):
-        distributions.bernoulli(p) @ f"flip_{i}"
-    return p
-
-# Run inference
-key = jax.random.PRNGKey(0)
-trace = coin_flips.simulate(key, (10,))
-print(f"Inferred bias: {trace.retval}")
+```bash
+pip install genjax
 ```
 
-## Key Features
+## Modules
 
-- **Composable Models**: Build complex models from simple components
-- **JAX Integration**: Leverage JAX's JIT compilation and automatic differentiation
-- **Programmable Inference**: Combine different inference algorithms seamlessly
-- **Pytree Compatible**: All GenJAX types work with JAX transformations
-
-## Getting Started
-
-- [Installation](getting-started/installation.md) - Install GenJAX and its dependencies
-- [Quick Start](getting-started/quickstart.md) - Dive into your first GenJAX program
-- [Tutorial](getting-started/tutorial.md) - Learn GenJAX concepts step by step
-
-## Learn More
-
-- [Core API](api/overview.md) - Understand the Generative Function Interface
-- [Inference Algorithms](inference/overview.md) - Explore MCMC, SMC, and VI
-- [Examples](examples/overview.md) - See GenJAX in action
+- **[genjax.core](reference/core.md)** - Core functionality and Generative Function Interface
+- **[genjax.distributions](reference/distributions.md)** - Probability distributions
+- **[genjax.inference.mcmc](reference/mcmc.md)** - Markov Chain Monte Carlo
+- **[genjax.inference.smc](reference/smc.md)** - Sequential Monte Carlo
+- **[genjax.pjax](reference/pjax.md)** - Probabilistic JAX primitives
+- **[genjax.adev](reference/adev.md)** - Automatic differentiation of expected values
+- **[genjax.state](reference/state.md)** - State interpreter
+- **[genjax.sp](reference/sp.md)** - Structural primitives

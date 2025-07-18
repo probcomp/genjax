@@ -21,28 +21,47 @@ Core functionality for GenJAX including the Generative Function Interface, trace
       show_docstring_warns: true
       show_docstring_other_parameters: true
 
-## Key Classes and Functions
+## Live Examples
 
-### GenerativeFunction
-The base class for all generative functions in GenJAX.
+### Basic Model
 
-### Trace
-Represents an execution trace of a generative function.
+```pycon exec="true" source="material-block"
+>>> import jax
+>>> import jax.numpy as jnp
+>>> from genjax import gen, distributions
+>>> 
+>>> @gen
+... def coin_flip_model(n_flips):
+...     bias = distributions.beta(1.0, 1.0) @ "bias"
+...     flips = []
+...     for i in range(n_flips):
+...         flip = distributions.bernoulli(bias) @ f"flip_{i}"
+...         flips.append(flip)
+...     return jnp.array(flips)
+... 
+>>> key = jax.random.PRNGKey(42)
+>>> trace = coin_flip_model.simulate(key, (3,))
+>>> print(f"Sampled bias: {trace['bias']:.3f}")
+>>> print(f"Flips: {trace.retval}")
+```
 
-### @gen Decorator
-Transform Python functions into generative functions.
+### Using the GFI
 
-## Usage Examples
+```pycon exec="true" source="material-block"
+>>> # Assess density at specific choices
+>>> choices = {"bias": 0.7, "flip_0": 1, "flip_1": 1, "flip_2": 0}
+>>> log_prob, retval = coin_flip_model.assess(choices, (3,))
+>>> print(f"Log probability: {log_prob:.3f}")
+>>> print(f"Return value: {retval}")
+```
 
-```python
-from genjax import gen, normal
+### Constrained Generation
 
-@gen
-def my_model(x):
-    z = normal(0, 1) @ "z"
-    y = normal(z * x, 0.1) @ "y"
-    return y
-
-# Use the generative function
-trace = my_model.simulate(key, (2.0,))
+```pycon exec="true" source="material-block"
+>>> # Fix some choices and sample others
+>>> constraints = {"flip_0": 1, "flip_1": 1}
+>>> trace = coin_flip_model.generate(key, constraints, (3,))
+>>> print(f"Generated bias: {trace['bias']:.3f}")
+>>> print(f"All flips: {trace.retval}")
+>>> print(f"Score: {trace.score:.3f}")
 ```
