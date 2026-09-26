@@ -88,16 +88,20 @@ def _run_example_script(
     *args: str,
     env_overrides: dict[str, str] | None = None,
 ) -> None:
-    pixi_bin = shutil.which("pixi")
-    if pixi_bin is None:
-        raise RuntimeError("Pixi executable not found in PATH.")
+    uv_bin = shutil.which("uv")
+    if uv_bin is None:
+        raise RuntimeError("uv executable not found in PATH.")
 
-    cmd = [pixi_bin, "run"]
-    if env_name:
-        cmd.extend(["-e", env_name])
+    cmd = [uv_bin, "run", "--locked"]
+    groups = ("perfbench", "cuda") if env_name == "perfbench-cuda" else (env_name,)
+    for group in groups:
+        if group:
+            cmd.extend(["--group", group])
     cmd.extend(["python", script, *args])
 
     env = _bench_env()
+    if env_name:
+        env["UV_PROJECT_ENVIRONMENT"] = str(CASE_ROOT / f".venv-{env_name}")
     if env_overrides:
         env.update(env_overrides)
 

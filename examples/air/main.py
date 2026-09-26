@@ -199,7 +199,7 @@ def run_fetch_data(args: argparse.Namespace) -> None:
     except Exception as exc:  # pragma: no cover - depends on optional env
         raise RuntimeError(
             "fetch-data requires pyro + torchvision. Run it via: "
-            "`pixi run -e perfbench-pyro python -m examples.air.main fetch-data ...`"
+            "`uv run --locked --group perfbench-pyro python -m examples.air.main fetch-data ...`"
         ) from exc
 
     cache_root = Path(args.cache_root)

@@ -5,10 +5,10 @@ This module provides benchmark fixtures and tests to identify performance
 bottlenecks in GenJAX components using pytest-benchmark.
 
 Usage:
-    pixi run benchmark                 # Run only benchmark tests
-    pixi run benchmark-all             # Run all tests with benchmarking
-    pixi run benchmark-save            # Save benchmark results
-    pixi run benchmark-slowest         # Show slowest tests without benchmarking
+    uv run --locked --group test pytest tests/ --benchmark-only -v  # Run only benchmark tests
+    uv run --locked --group test pytest tests/ --benchmark-disable-gc --benchmark-sort=mean -v  # Run all tests with benchmarking
+    uv run --locked --group test pytest tests/ --benchmark-save=current --benchmark-disable-gc -v  # Save benchmark results
+    uv run --locked --group test pytest tests/ --durations=20 --benchmark-disable -v  # Show slowest tests without benchmarking
 """
 
 import pytest
@@ -53,7 +53,7 @@ def hierarchical_model():
 
             # Observations within group
             for j in range(n_obs_per_group):
-                obs = normal(group_mu, 0.5) @ f"group_{i}/obs_{j}"
+                normal(group_mu, 0.5) @ f"group_{i}/obs_{j}"
 
         return group_means
 
@@ -67,7 +67,7 @@ def smc_model():
     @gen
     def transition(prev_state):
         new_state = normal(prev_state, 0.1) @ "state"
-        obs = normal(new_state, 0.05) @ "obs"
+        normal(new_state, 0.05) @ "obs"
         return new_state
 
     return transition
@@ -383,10 +383,14 @@ def analyze_benchmark_results(benchmark_file=".benchmarks/benchmarks.json"):
 if __name__ == "__main__":
     # Example usage when run directly
     print("This module contains benchmark tests for GenJAX.")
-    print("Run with: pixi run benchmark")
+    print("Run with: uv run --locked --group test pytest tests/ --benchmark-only -v")
     print("")
     print("Available benchmark commands:")
-    print("  pixi run benchmark        - Run only benchmark tests")
-    print("  pixi run benchmark-all    - Run all tests with benchmarking")
-    print("  pixi run benchmark-save   - Save benchmark results")
-    print("  pixi run benchmark-slowest - Show slowest tests")
+    print("  --benchmark-only -v  - Run only benchmark tests")
+    print(
+        "  --benchmark-disable-gc --benchmark-sort=mean -v  - Run all tests with benchmarking"
+    )
+    print(
+        "  --benchmark-save=current --benchmark-disable-gc -v  - Save benchmark results"
+    )
+    print("  --durations=20 --benchmark-disable -v  - Show slowest tests")

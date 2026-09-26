@@ -8,25 +8,26 @@
 - From `research/genjax/`:
 
 ```sh
-pixi run paper-perfbench
-pixi run paper-perfbench --mode cuda
-pixi run paper-perfbench --inference is
-pixi run paper-perfbench --inference hmc
-pixi run paper-perfbench --frameworks genjax numpyro handcoded_jax
-pixi run paper-perfbench-clean
+uv run --locked --group perfbench python examples/perfbench/main.py pipeline
+uv run --locked --group perfbench --group cuda python examples/perfbench/main.py pipeline --mode cuda
+uv run --locked --group perfbench python examples/perfbench/main.py pipeline --inference is
+uv run --locked --group perfbench python examples/perfbench/main.py pipeline --inference hmc
+uv run --locked --group perfbench python examples/perfbench/main.py pipeline --frameworks genjax numpyro handcoded_jax
+uv run --locked --group perfbench python examples/perfbench/main.py clean
 ```
 
 - Direct orchestration:
 
 ```sh
-pixi run -e perfbench python examples/perfbench/main.py pipeline --help
+uv run --locked --group perfbench python examples/perfbench/main.py pipeline --help
 ```
 
 - CPU output: `data_cpu/` and `figs_cpu/`.
 - CUDA output: `data/` and `figs/`.
 - Resume with the `--skip-*` flags shown by `--help`.
 - Gen.jl lanes require Julia 1.10 or newer.
-- Framework-specific environments and repeat caps are encoded in the pipeline.
+- Framework-specific uv groups and repeat caps are encoded in the pipeline. Each
+  group keeps its own local environment during a pipeline run.
 
 ## Code
 
@@ -34,7 +35,7 @@ pixi run -e perfbench python examples/perfbench/main.py pipeline --help
 - [Benchmark runners](benchmarks/)
 - [Framework adapters](benchmarks/src/timing_benchmarks/curvefit_benchmarks/)
 - [Result merge and plotting](benchmarks/combine_results.py)
-- [Pixi task registration](../../pyproject.toml)
+- [Dependency groups](../../pyproject.toml)
 - [Parent artifact index](../../README.md)
 
 ## References
