@@ -13,7 +13,7 @@ from .timing_utils import benchmark_with_warmup
 from typing import Dict, Any, Optional
 
 
-def importance_sampling(xs, ys, n_particles, device='cuda'):
+def importance_sampling(xs, ys, n_particles, device="cuda"):
     """Handcoded PyTorch importance sampling for polynomial regression."""
     # Move data to device
     xs = torch.tensor(xs, dtype=torch.float32, device=device)
@@ -33,9 +33,11 @@ def importance_sampling(xs, ys, n_particles, device='cuda'):
 
     # Compute predictions for all particles
     # Shape: (n_particles, n_data)
-    y_pred = (a_samples.unsqueeze(1) +
-              b_samples.unsqueeze(1) * xs.unsqueeze(0) +
-              c_samples.unsqueeze(1) * xs_squared.unsqueeze(0))
+    y_pred = (
+        a_samples.unsqueeze(1)
+        + b_samples.unsqueeze(1) * xs.unsqueeze(0)
+        + c_samples.unsqueeze(1) * xs_squared.unsqueeze(0)
+    )
 
     # Compute log likelihood
     obs_dist = dist.Normal(y_pred, 0.05)
@@ -44,16 +46,18 @@ def importance_sampling(xs, ys, n_particles, device='cuda'):
     return log_weights
 
 
-def handcoded_torch_timing(dataset, n_particles, repeats=10, inner_repeats=10, device='cuda'):
+def handcoded_torch_timing(
+    dataset, n_particles, repeats=10, inner_repeats=10, device="cuda"
+):
     """Time handcoded PyTorch importance sampling."""
     # Convert JAX arrays to numpy if needed
-    xs = np.array(dataset.xs) if hasattr(dataset.xs, '__array__') else dataset.xs
-    ys = np.array(dataset.ys) if hasattr(dataset.ys, '__array__') else dataset.ys
+    xs = np.array(dataset.xs) if hasattr(dataset.xs, "__array__") else dataset.xs
+    ys = np.array(dataset.ys) if hasattr(dataset.ys, "__array__") else dataset.ys
 
     def task():
         with torch.no_grad():
             result = importance_sampling(xs, ys, n_particles, device)
-        if device == 'cuda':
+        if device == "cuda":
             torch.cuda.synchronize()
         return result
 
@@ -67,33 +71,45 @@ def handcoded_torch_timing(dataset, n_particles, repeats=10, inner_repeats=10, d
     )
 
     return {
-        'framework': 'handcoded_torch',
-        'method': 'importance_sampling',
-        'n_particles': n_particles,
-        'n_points': dataset.n_points,
-        'times': times.tolist(),  # Convert numpy array to list for JSON serialization
-        'mean_time': mean_time,
-        'std_time': std_time,
-        'device': device
+        "framework": "handcoded_torch",
+        "method": "importance_sampling",
+        "n_particles": n_particles,
+        "n_points": dataset.n_points,
+        "times": times.tolist(),  # Convert numpy array to list for JSON serialization
+        "mean_time": mean_time,
+        "std_time": std_time,
+        "device": device,
     }
 
 
 def main():
     """Main entry point for handcoded PyTorch benchmarks."""
     parser = argparse.ArgumentParser(description="Run handcoded PyTorch benchmarks")
-    parser.add_argument("--n-particles", type=int, nargs="+",
-                        default=[100, 1000, 10000, 100000],
-                        help="Number of particles for IS")
-    parser.add_argument("--n-points", type=int, default=50,
-                        help="Number of data points")
-    parser.add_argument("--repeats", type=int, default=10,
-                        help="Number of timing repetitions (outer repeats)")
-    parser.add_argument("--inner-repeats", type=int, default=10,
-                        help="Number of inner timing repeats")
-    parser.add_argument("--device", default="cuda", choices=["cpu", "cuda"],
-                        help="Device to run on")
-    parser.add_argument("--output-dir", type=str, default=None,
-                        help="Output directory for results")
+    parser.add_argument(
+        "--n-particles",
+        type=int,
+        nargs="+",
+        default=[100, 1000, 10000, 100000],
+        help="Number of particles for IS",
+    )
+    parser.add_argument(
+        "--n-points", type=int, default=50, help="Number of data points"
+    )
+    parser.add_argument(
+        "--repeats",
+        type=int,
+        default=10,
+        help="Number of timing repetitions (outer repeats)",
+    )
+    parser.add_argument(
+        "--inner-repeats", type=int, default=10, help="Number of inner timing repeats"
+    )
+    parser.add_argument(
+        "--device", default="cuda", choices=["cpu", "cuda"], help="Device to run on"
+    )
+    parser.add_argument(
+        "--output-dir", type=str, default=None, help="Output directory for results"
+    )
 
     args = parser.parse_args()
 
@@ -130,18 +146,22 @@ def main():
             json.dump(result, f, indent=2)
 
     # Save summary
-    summary_file = output_dir / f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    summary_file = (
+        output_dir / f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    )
     with open(summary_file, "w") as f:
-        json.dump({
-            "framework": "handcoded_torch",
-            "n_points": dataset.n_points,
-            "noise_std": dataset.noise_std,
-            "config": vars(args)
-        }, f, indent=2)
+        json.dump(
+            {
+                "framework": "handcoded_torch",
+                "n_points": dataset.n_points,
+                "noise_std": dataset.noise_std,
+                "config": vars(args),
+            },
+            f,
+            indent=2,
+        )
 
     print(f"\nResults saved to {output_dir}")
-
-
 
 
 def handcoded_torch_polynomial_hmc_timing(
@@ -178,7 +198,7 @@ def handcoded_torch_polynomial_hmc_timing(
         log_lik = torch.distributions.Normal(y_pred, 0.05).log_prob(ys).sum()
 
         # Priors: Normal(0, 1) for all parameters
-        log_prior = torch.distributions.Normal(0., 1.).log_prob(params).sum()
+        log_prior = torch.distributions.Normal(0.0, 1.0).log_prob(params).sum()
 
         return log_lik + log_prior
 
@@ -226,7 +246,9 @@ def handcoded_torch_polynomial_hmc_timing(
         new_energy = -log_p_new + 0.5 * (p_new**2).sum()
 
         # Metropolis accept/reject
-        accept_prob = torch.minimum(torch.tensor(1.), torch.exp(initial_energy - new_energy))
+        accept_prob = torch.minimum(
+            torch.tensor(1.0), torch.exp(initial_energy - new_energy)
+        )
         accept = torch.rand(1, device=device) < accept_prob
 
         if accept:
@@ -296,7 +318,7 @@ def handcoded_torch_polynomial_hmc_timing(
             "a": samples[:, 0].cpu().numpy(),
             "b": samples[:, 1].cpu().numpy(),
             "c": samples[:, 2].cpu().numpy(),
-        }
+        },
     }
 
 

@@ -72,15 +72,15 @@ def numpyro_polynomial_is_timing(
             tr = trace_fn.get_trace(xs, ys)
 
             # Extract samples
-            a = tr['a']['value']
-            b = tr['b']['value']
-            c = tr['c']['value']
+            a = tr["a"]["value"]
+            b = tr["b"]["value"]
+            c = tr["c"]["value"]
 
             # Compute log weight (sum of log probs)
             log_weight = 0.0
             for site in tr.values():
-                if site['type'] == 'sample':
-                    log_weight += site['fn'].log_prob(site['value']).sum()
+                if site["type"] == "sample":
+                    log_weight += site["fn"].log_prob(site["value"]).sum()
 
             return a, b, c, log_weight
 
@@ -88,10 +88,10 @@ def numpyro_polynomial_is_timing(
         a_samples, b_samples, c_samples, log_weights = jax.vmap(sample_and_weight)(keys)
 
         return {
-            'a': a_samples,
-            'b': b_samples,
-            'c': c_samples,
-            'log_weights': log_weights
+            "a": a_samples,
+            "b": b_samples,
+            "c": c_samples,
+            "log_weights": log_weights,
         }
 
     # JIT compile the inference function with static n_particles
@@ -101,7 +101,7 @@ def numpyro_polynomial_is_timing(
     def task():
         result = jitted_is(key, xs, ys, n_particles)
         # Block only on log weights for fair comparison
-        jax.block_until_ready(result['log_weights'])
+        jax.block_until_ready(result["log_weights"])
         return result
 
     # Run benchmark with automatic warm-up - more inner repeats for accuracy
@@ -125,11 +125,11 @@ def numpyro_polynomial_is_timing(
         "mean_time": mean_time,
         "std_time": std_time,
         "samples": {
-            "a": samples['a'],
-            "b": samples['b'],
-            "c": samples['c'],
+            "a": samples["a"],
+            "b": samples["b"],
+            "c": samples["c"],
         },
-        "log_weights": samples['log_weights'],
+        "log_weights": samples["log_weights"],
     }
 
 
@@ -190,6 +190,7 @@ def numpyro_polynomial_hmc_timing(
             adapt_mass_matrix=False,
             rng_key=rng_key,
         )
+
         def one_step(state, _):
             new_state = sample_kernel(state)
             return new_state, new_state.z
@@ -239,7 +240,7 @@ def numpyro_polynomial_hmc_timing(
             "a": samples["a"],
             "b": samples["b"],
             "c": samples["c"],
-        }
+        },
     }
 
 
@@ -252,27 +253,44 @@ if __name__ == "__main__":
     from ..data.generation import generate_polynomial_data
 
     parser = argparse.ArgumentParser(description="Run NumPyro benchmarks")
-    parser.add_argument("--n-particles", type=int, nargs="+",
-                        default=[100, 1000, 10000, 100000],
-                        help="Number of particles for IS")
-    parser.add_argument("--n-points", type=int, default=50,
-                        help="Number of data points")
-    parser.add_argument("--repeats", type=int, default=50,
-                        help="Number of timing repetitions")
-    parser.add_argument("--inner-repeats", type=int, default=50,
-                        help="Inner timing repeats for IS")
-    parser.add_argument("--output-dir", type=str, default=None,
-                        help="Output directory for results")
-    parser.add_argument("--method", choices=["is", "hmc", "all"], default="is",
-                        help="Which method to benchmark")
-    parser.add_argument("--n-samples", type=int, default=1000,
-                        help="Number of HMC samples")
-    parser.add_argument("--n-warmup", type=int, default=500,
-                        help="Number of HMC warmup samples")
-    parser.add_argument("--step-size", type=float, default=0.01,
-                        help="HMC step size")
-    parser.add_argument("--target-accept-prob", type=float, default=0.8,
-                        help="HMC target acceptance probability")
+    parser.add_argument(
+        "--n-particles",
+        type=int,
+        nargs="+",
+        default=[100, 1000, 10000, 100000],
+        help="Number of particles for IS",
+    )
+    parser.add_argument(
+        "--n-points", type=int, default=50, help="Number of data points"
+    )
+    parser.add_argument(
+        "--repeats", type=int, default=50, help="Number of timing repetitions"
+    )
+    parser.add_argument(
+        "--inner-repeats", type=int, default=50, help="Inner timing repeats for IS"
+    )
+    parser.add_argument(
+        "--output-dir", type=str, default=None, help="Output directory for results"
+    )
+    parser.add_argument(
+        "--method",
+        choices=["is", "hmc", "all"],
+        default="is",
+        help="Which method to benchmark",
+    )
+    parser.add_argument(
+        "--n-samples", type=int, default=1000, help="Number of HMC samples"
+    )
+    parser.add_argument(
+        "--n-warmup", type=int, default=500, help="Number of HMC warmup samples"
+    )
+    parser.add_argument("--step-size", type=float, default=0.01, help="HMC step size")
+    parser.add_argument(
+        "--target-accept-prob",
+        type=float,
+        default=0.8,
+        help="HMC target acceptance probability",
+    )
 
     args = parser.parse_args()
 
@@ -305,8 +323,10 @@ if __name__ == "__main__":
 
             # Save individual result (without samples)
             result_file = output_dir / f"is_n{n_particles}.json"
-            result_to_save = {k: v for k, v in result.items() if k not in ['samples', 'log_weights']}
-            result_to_save['times'] = [float(t) for t in result['times']]
+            result_to_save = {
+                k: v for k, v in result.items() if k not in ["samples", "log_weights"]
+            }
+            result_to_save["times"] = [float(t) for t in result["times"]]
             with open(result_file, "w") as f:
                 json.dump(result_to_save, f, indent=2)
 
@@ -316,7 +336,9 @@ if __name__ == "__main__":
     if args.method in ["hmc", "all"]:
         print("Running NumPyro HMC benchmarks...")
         print(f"  N = {args.n_samples:,} samples (warmup: {args.n_warmup})...")
-        print(f"  Step size = {args.step_size}, Target accept = {args.target_accept_prob}")
+        print(
+            f"  Step size = {args.step_size}, Target accept = {args.target_accept_prob}"
+        )
 
         hmc_result = numpyro_polynomial_hmc_timing(
             dataset,
@@ -337,7 +359,9 @@ if __name__ == "__main__":
         results["hmc"] = hmc_result
 
     # Save summary
-    summary_file = output_dir / f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    summary_file = (
+        output_dir / f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    )
 
     # Clean up results for JSON serialization
     clean_results = {}
@@ -347,12 +371,15 @@ if __name__ == "__main__":
             for key, result in method_results.items():
                 if isinstance(result, dict):
                     clean_result = {
-                        k: v for k, v in result.items()
-                        if k not in ['samples', 'log_weights']
+                        k: v
+                        for k, v in result.items()
+                        if k not in ["samples", "log_weights"]
                     }
                     # Convert times to Python floats
-                    if 'times' in clean_result:
-                        clean_result['times'] = [float(t) for t in clean_result['times']]
+                    if "times" in clean_result:
+                        clean_result["times"] = [
+                            float(t) for t in clean_result["times"]
+                        ]
                     clean_results[method][key] = clean_result
                 else:
                     clean_results[method] = result
@@ -360,14 +387,18 @@ if __name__ == "__main__":
             clean_results[method] = method_results
 
     with open(summary_file, "w") as f:
-        json.dump({
-            "framework": "numpyro",
-            "dataset": {
-                "n_points": dataset.n_points,
-                "noise_std": float(dataset.noise_std),
+        json.dump(
+            {
+                "framework": "numpyro",
+                "dataset": {
+                    "n_points": dataset.n_points,
+                    "noise_std": float(dataset.noise_std),
+                },
+                "config": vars(args),
+                "results": clean_results,
             },
-            "config": vars(args),
-            "results": clean_results
-        }, f, indent=2)
+            f,
+            indent=2,
+        )
 
     print(f"\nResults saved to {output_dir}")

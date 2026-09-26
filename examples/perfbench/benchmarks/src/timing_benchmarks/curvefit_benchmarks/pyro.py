@@ -80,24 +80,24 @@ def pyro_polynomial_is_timing(
                     trace = poutine.trace(polynomial_model).get_trace(xs, ys)
 
                     # Extract samples directly into pre-allocated tensors
-                    a_samples[i] = trace.nodes['a']['value']
-                    b_samples[i] = trace.nodes['b']['value']
-                    c_samples[i] = trace.nodes['c']['value']
+                    a_samples[i] = trace.nodes["a"]["value"]
+                    b_samples[i] = trace.nodes["b"]["value"]
+                    c_samples[i] = trace.nodes["c"]["value"]
 
                     # Compute log weight more efficiently
                     # Only compute log prob for latent variables (not observed)
                     log_weight = (
-                        trace.nodes['a']['fn'].log_prob(trace.nodes['a']['value']) +
-                        trace.nodes['b']['fn'].log_prob(trace.nodes['b']['value']) +
-                        trace.nodes['c']['fn'].log_prob(trace.nodes['c']['value'])
+                        trace.nodes["a"]["fn"].log_prob(trace.nodes["a"]["value"])
+                        + trace.nodes["b"]["fn"].log_prob(trace.nodes["b"]["value"])
+                        + trace.nodes["c"]["fn"].log_prob(trace.nodes["c"]["value"])
                     )
                     log_weights[i] = log_weight
 
             return {
-                'a': a_samples,
-                'b': b_samples,
-                'c': c_samples,
-                'log_weights': log_weights
+                "a": a_samples,
+                "b": b_samples,
+                "c": c_samples,
+                "log_weights": log_weights,
             }
 
         # Try vectorized implementation for GPU
@@ -112,43 +112,61 @@ def pyro_polynomial_is_timing(
 
             def vectorized_model():
                 with pyro.plate("particles", n_particles):
-                    a = pyro.sample("a", dist.Normal(torch.tensor(0.0, device=device),
-                                                   torch.tensor(1.0, device=device)))
-                    b = pyro.sample("b", dist.Normal(torch.tensor(0.0, device=device),
-                                                   torch.tensor(1.0, device=device)))
-                    c = pyro.sample("c", dist.Normal(torch.tensor(0.0, device=device),
-                                                   torch.tensor(1.0, device=device)))
+                    a = pyro.sample(
+                        "a",
+                        dist.Normal(
+                            torch.tensor(0.0, device=device),
+                            torch.tensor(1.0, device=device),
+                        ),
+                    )
+                    b = pyro.sample(
+                        "b",
+                        dist.Normal(
+                            torch.tensor(0.0, device=device),
+                            torch.tensor(1.0, device=device),
+                        ),
+                    )
+                    c = pyro.sample(
+                        "c",
+                        dist.Normal(
+                            torch.tensor(0.0, device=device),
+                            torch.tensor(1.0, device=device),
+                        ),
+                    )
 
                 # Vectorized predictions
-                y_pred = (a.unsqueeze(-1) +
-                          b.unsqueeze(-1) * xs.unsqueeze(0) +
-                          c.unsqueeze(-1) * xs_squared.unsqueeze(0))
+                y_pred = (
+                    a.unsqueeze(-1)
+                    + b.unsqueeze(-1) * xs.unsqueeze(0)
+                    + c.unsqueeze(-1) * xs_squared.unsqueeze(0)
+                )
 
                 with pyro.plate("data", len(xs), dim=-1):
-                    pyro.sample("y", dist.Normal(y_pred, 0.05),
-                               obs=ys.expand(n_particles, -1))
+                    pyro.sample(
+                        "y", dist.Normal(y_pred, 0.05), obs=ys.expand(n_particles, -1)
+                    )
 
             # Get trace
             with torch.no_grad():
                 trace = poutine.trace(vectorized_model).get_trace()
 
             # Extract samples
-            a_samples = trace.nodes['a']['value']
-            b_samples = trace.nodes['b']['value']
-            c_samples = trace.nodes['c']['value']
+            a_samples = trace.nodes["a"]["value"]
+            b_samples = trace.nodes["b"]["value"]
+            c_samples = trace.nodes["c"]["value"]
 
             # Compute log weights (just prior for IS)
             log_weights = (
-                trace.nodes['a']['fn'].log_prob(a_samples) +
-                trace.nodes['b']['fn'].log_prob(b_samples) +
-                trace.nodes['c']['fn'].log_prob(c_samples)
+                trace.nodes["a"]["fn"].log_prob(a_samples)
+                + trace.nodes["b"]["fn"].log_prob(b_samples)
+                + trace.nodes["c"]["fn"].log_prob(c_samples)
             )
 
             return {
-                'a': a_samples,
-                'b': b_samples,
-                'c': c_samples,
-                'log_weights': log_weights
+                "a": a_samples,
+                "b": b_samples,
+                "c": c_samples,
+                "log_weights": log_weights,
             }
 
         # Choose implementation based on device and particle count
@@ -186,11 +204,11 @@ def pyro_polynomial_is_timing(
             "mean_time": mean_time,
             "std_time": std_time,
             "samples": {
-                "a": samples['a'].cpu().numpy(),
-                "b": samples['b'].cpu().numpy(),
-                "c": samples['c'].cpu().numpy(),
+                "a": samples["a"].cpu().numpy(),
+                "b": samples["b"].cpu().numpy(),
+                "c": samples["c"].cpu().numpy(),
             },
-            "log_weights": samples['log_weights'].cpu().numpy(),
+            "log_weights": samples["log_weights"].cpu().numpy(),
         }
 
     except ImportError:
@@ -203,7 +221,7 @@ def pyro_polynomial_is_timing(
             "times": [],
             "mean_time": np.nan,
             "std_time": np.nan,
-            "error": "Pyro not installed"
+            "error": "Pyro not installed",
         }
 
 
@@ -330,7 +348,7 @@ def pyro_polynomial_hmc_timing(
             "times": [],
             "mean_time": np.nan,
             "std_time": np.nan,
-            "error": "Pyro not installed"
+            "error": "Pyro not installed",
         }
 
 
@@ -343,25 +361,43 @@ if __name__ == "__main__":
     from ..data.generation import generate_polynomial_data
 
     parser = argparse.ArgumentParser(description="Run Pyro benchmarks")
-    parser.add_argument("--method", choices=["is", "hmc", "all"], default="is",
-                        help="Inference method to benchmark")
-    parser.add_argument("--n-particles", type=int, nargs="+",
-                        default=[100, 1000, 10000, 100000],
-                        help="Number of particles for IS")
-    parser.add_argument("--n-samples", type=int, default=1000,
-                        help="Number of samples for HMC")
-    parser.add_argument("--n-warmup", type=int, default=500,
-                        help="Number of warmup samples for HMC")
-    parser.add_argument("--n-points", type=int, default=50,
-                        help="Number of data points")
-    parser.add_argument("--repeats", type=int, default=50,
-                        help="Number of timing repetitions")
-    parser.add_argument("--inner-repeats", type=int, default=50,
-                        help="Inner timing repetitions for IS")
-    parser.add_argument("--output-dir", type=str, default="data/pyro",
-                        help="Output directory for results")
-    parser.add_argument("--device", type=str, default="cuda",
-                        help="Device to use (cuda or cpu)")
+    parser.add_argument(
+        "--method",
+        choices=["is", "hmc", "all"],
+        default="is",
+        help="Inference method to benchmark",
+    )
+    parser.add_argument(
+        "--n-particles",
+        type=int,
+        nargs="+",
+        default=[100, 1000, 10000, 100000],
+        help="Number of particles for IS",
+    )
+    parser.add_argument(
+        "--n-samples", type=int, default=1000, help="Number of samples for HMC"
+    )
+    parser.add_argument(
+        "--n-warmup", type=int, default=500, help="Number of warmup samples for HMC"
+    )
+    parser.add_argument(
+        "--n-points", type=int, default=50, help="Number of data points"
+    )
+    parser.add_argument(
+        "--repeats", type=int, default=50, help="Number of timing repetitions"
+    )
+    parser.add_argument(
+        "--inner-repeats", type=int, default=50, help="Inner timing repetitions for IS"
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="data/pyro",
+        help="Output directory for results",
+    )
+    parser.add_argument(
+        "--device", type=str, default="cuda", help="Device to use (cuda or cpu)"
+    )
 
     args = parser.parse_args()
 
@@ -391,7 +427,9 @@ if __name__ == "__main__":
 
             # Save individual result (without samples to avoid serialization issues)
             result_file = output_dir / f"is_n{n_particles}.json"
-            result_to_save = {k: v for k, v in result.items() if k not in ['samples', 'log_weights']}
+            result_to_save = {
+                k: v for k, v in result.items() if k not in ["samples", "log_weights"]
+            }
             # Convert times to list of floats for JSON serialization
             result_to_save["times"] = [float(t) for t in result["times"]]
             with open(result_file, "w") as f:
@@ -402,19 +440,24 @@ if __name__ == "__main__":
     if args.method in ["hmc", "all"]:
         print("Running Pyro HMC benchmarks...")
         result = pyro_polynomial_hmc_timing(
-            dataset, args.n_samples, n_warmup=args.n_warmup,
-            repeats=args.repeats, device=args.device
+            dataset,
+            args.n_samples,
+            n_warmup=args.n_warmup,
+            repeats=args.repeats,
+            device=args.device,
         )
         results["hmc"] = result
 
         # Save HMC result (without samples)
         result_file = output_dir / f"hmc_n{args.n_samples}.json"
-        result_to_save = {k: v for k, v in result.items() if k not in ['samples']}
+        result_to_save = {k: v for k, v in result.items() if k not in ["samples"]}
         with open(result_file, "w") as f:
             json.dump(result_to_save, f, indent=2)
 
     # Save summary (with cleaned results)
-    summary_file = output_dir / f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    summary_file = (
+        output_dir / f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    )
 
     # Clean up results for JSON serialization
     clean_results = {}
@@ -424,12 +467,15 @@ if __name__ == "__main__":
             for key, result in method_results.items():
                 if isinstance(result, dict):
                     clean_result = {
-                        k: v for k, v in result.items()
-                        if k not in ['samples', 'log_weights']
+                        k: v
+                        for k, v in result.items()
+                        if k not in ["samples", "log_weights"]
                     }
                     # Convert times to Python floats
-                    if 'times' in clean_result:
-                        clean_result['times'] = [float(t) for t in clean_result['times']]
+                    if "times" in clean_result:
+                        clean_result["times"] = [
+                            float(t) for t in clean_result["times"]
+                        ]
                     clean_results[method][key] = clean_result
                 else:
                     clean_results[method] = result
@@ -437,14 +483,18 @@ if __name__ == "__main__":
             clean_results[method] = method_results
 
     with open(summary_file, "w") as f:
-        json.dump({
-            "framework": "pyro",
-            "dataset": {
-                "n_points": dataset.n_points,
-                "noise_std": float(dataset.noise_std),
+        json.dump(
+            {
+                "framework": "pyro",
+                "dataset": {
+                    "n_points": dataset.n_points,
+                    "noise_std": float(dataset.noise_std),
+                },
+                "config": vars(args),
+                "results": clean_results,
             },
-            "config": vars(args),
-            "results": clean_results
-        }, f, indent=2)
+            f,
+            indent=2,
+        )
 
     print(f"\nResults saved to {output_dir}")

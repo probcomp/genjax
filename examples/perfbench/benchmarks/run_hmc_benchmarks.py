@@ -29,6 +29,7 @@ def ensure_jax_backend():
     print(f"JAX devices: {jax.devices()}")
     return jax
 
+
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
@@ -37,12 +38,20 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 def load_module(framework_name):
     """Dynamically load a framework module."""
-    module_path = Path(__file__).parent / "src" / "timing_benchmarks" / "curvefit_benchmarks" / f"{framework_name}.py"
+    module_path = (
+        Path(__file__).parent
+        / "src"
+        / "timing_benchmarks"
+        / "curvefit_benchmarks"
+        / f"{framework_name}.py"
+    )
     if not module_path.exists():
         print(f"Warning: Module {module_path} not found")
         return None
 
-    spec = importlib.util.spec_from_file_location(f"timing_benchmarks.curvefit_benchmarks.{framework_name}", module_path)
+    spec = importlib.util.spec_from_file_location(
+        f"timing_benchmarks.curvefit_benchmarks.{framework_name}", module_path
+    )
     module = importlib.util.module_from_spec(spec)
     sys.modules[f"timing_benchmarks.curvefit_benchmarks.{framework_name}"] = module
     spec.loader.exec_module(module)
@@ -81,13 +90,13 @@ def run_framework_hmc(
         # NumPyro now uses fixed n_leapfrog like other frameworks
         framework_kwargs = {
             "step_size": kwargs.get("step_size", 0.01),
-            "n_leapfrog": kwargs.get("n_leapfrog", 20)
+            "n_leapfrog": kwargs.get("n_leapfrog", 20),
         }
     elif framework == "genjax":
         # GenJAX uses step_size and n_leapfrog
         framework_kwargs = {
             "step_size": kwargs.get("step_size", 0.01),
-            "n_leapfrog": kwargs.get("n_leapfrog", 20)
+            "n_leapfrog": kwargs.get("n_leapfrog", 20),
         }
     elif framework == "pyro":
         # Pyro uses device parameter
@@ -96,7 +105,7 @@ def run_framework_hmc(
         framework_kwargs = {
             "step_size": kwargs.get("step_size", 0.01),
             "num_steps": kwargs.get("n_leapfrog", 20),
-            "device": kwargs.get("device", "cpu")
+            "device": kwargs.get("device", "cpu"),
         }
     elif framework == "handcoded_torch":
         # PyTorch uses device parameter
@@ -105,7 +114,7 @@ def run_framework_hmc(
         framework_kwargs = {
             "step_size": kwargs.get("step_size", 0.01),
             "n_leapfrog": kwargs.get("n_leapfrog", 20),
-            "device": kwargs.get("device", "cpu")
+            "device": kwargs.get("device", "cpu"),
         }
     elif framework == "handcoded_jax":
         framework_kwargs = {
@@ -118,13 +127,13 @@ def run_framework_hmc(
         inner_repeats = kwargs.get("genjl_inner_repeats", inner_repeats)
         framework_kwargs = {
             "step_size": kwargs.get("step_size", 0.01),
-            "n_leapfrog": kwargs.get("n_leapfrog", 20)
+            "n_leapfrog": kwargs.get("n_leapfrog", 20),
         }
     else:
         # Default: pass step_size and n_leapfrog
         framework_kwargs = {
             "step_size": kwargs.get("step_size", 0.01),
-            "n_leapfrog": kwargs.get("n_leapfrog", 20)
+            "n_leapfrog": kwargs.get("n_leapfrog", 20),
         }
 
     # Run the timing
@@ -135,54 +144,114 @@ def run_framework_hmc(
             n_samples=n_samples,
             n_warmup=n_warmup,
             repeats=repeats,
-            **framework_kwargs
+            **framework_kwargs,
         )
         return results
     except Exception as e:
         print(f"Error running {framework} HMC: {e}")
         import traceback
+
         traceback.print_exc()
         return None
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run HMC benchmarks with varying chain lengths")
-    parser.add_argument("--frameworks", nargs="+",
-                       default=["genjax", "numpyro", "handcoded_jax", "handcoded_torch", "pyro", "genjl"],
-                       help="Frameworks to benchmark")
-    parser.add_argument("--chain-lengths", nargs="+", type=int,
-                       default=[100, 500, 1000, 5000],
-                       help="HMC chain lengths to test")
-    parser.add_argument("--n-points", type=int, default=50,
-                       help="Number of data points")
-    parser.add_argument("--repeats", type=int, default=100,
-                       help="Number of timing repetitions")
-    parser.add_argument("--inner-repeats", type=int, default=10,
-                       help="Inner timing repeats per outer loop")
-    parser.add_argument("--pyro-repeats", type=int, default=5,
-                       help="Repeats override for Pyro (default 5)")
-    parser.add_argument("--pyro-inner-repeats", type=int, default=5,
-                       help="Inner repeats override for Pyro (default 5)")
-    parser.add_argument("--torch-repeats", type=int, default=5,
-                       help="Repeats override for handcoded PyTorch (default 5)")
-    parser.add_argument("--torch-inner-repeats", type=int, default=5,
-                       help="Inner repeats override for handcoded PyTorch (default 5)")
-    parser.add_argument("--genjl-repeats", type=int, default=5,
-                       help="Repeats override for Gen.jl (default 5)")
-    parser.add_argument("--genjl-inner-repeats", type=int, default=5,
-                       help="Inner repeats override for Gen.jl (default 5)")
-    parser.add_argument("--n-warmup", type=int, default=50,
-                       help="Number of HMC warmup steps")
-    parser.add_argument("--output-dir", type=Path, default=Path("data"),
-                       help="Output directory for results")
-    parser.add_argument("--step-size", type=float, default=0.01,
-                       help="HMC step size")
-    parser.add_argument("--n-leapfrog", type=int, default=20,
-                       help="Number of leapfrog steps (GenJAX)")
-    parser.add_argument("--target-accept-prob", type=float, default=0.8,
-                       help="Target acceptance probability (NumPyro)")
-    parser.add_argument("--device", type=str, default="cuda",
-                       help="Device for PyTorch/Pyro (cpu or cuda)")
+    parser = argparse.ArgumentParser(
+        description="Run HMC benchmarks with varying chain lengths"
+    )
+    parser.add_argument(
+        "--frameworks",
+        nargs="+",
+        default=[
+            "genjax",
+            "numpyro",
+            "handcoded_jax",
+            "handcoded_torch",
+            "pyro",
+            "genjl",
+        ],
+        help="Frameworks to benchmark",
+    )
+    parser.add_argument(
+        "--chain-lengths",
+        nargs="+",
+        type=int,
+        default=[100, 500, 1000, 5000],
+        help="HMC chain lengths to test",
+    )
+    parser.add_argument(
+        "--n-points", type=int, default=50, help="Number of data points"
+    )
+    parser.add_argument(
+        "--repeats", type=int, default=100, help="Number of timing repetitions"
+    )
+    parser.add_argument(
+        "--inner-repeats",
+        type=int,
+        default=10,
+        help="Inner timing repeats per outer loop",
+    )
+    parser.add_argument(
+        "--pyro-repeats",
+        type=int,
+        default=5,
+        help="Repeats override for Pyro (default 5)",
+    )
+    parser.add_argument(
+        "--pyro-inner-repeats",
+        type=int,
+        default=5,
+        help="Inner repeats override for Pyro (default 5)",
+    )
+    parser.add_argument(
+        "--torch-repeats",
+        type=int,
+        default=5,
+        help="Repeats override for handcoded PyTorch (default 5)",
+    )
+    parser.add_argument(
+        "--torch-inner-repeats",
+        type=int,
+        default=5,
+        help="Inner repeats override for handcoded PyTorch (default 5)",
+    )
+    parser.add_argument(
+        "--genjl-repeats",
+        type=int,
+        default=5,
+        help="Repeats override for Gen.jl (default 5)",
+    )
+    parser.add_argument(
+        "--genjl-inner-repeats",
+        type=int,
+        default=5,
+        help="Inner repeats override for Gen.jl (default 5)",
+    )
+    parser.add_argument(
+        "--n-warmup", type=int, default=50, help="Number of HMC warmup steps"
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("data"),
+        help="Output directory for results",
+    )
+    parser.add_argument("--step-size", type=float, default=0.01, help="HMC step size")
+    parser.add_argument(
+        "--n-leapfrog", type=int, default=20, help="Number of leapfrog steps (GenJAX)"
+    )
+    parser.add_argument(
+        "--target-accept-prob",
+        type=float,
+        default=0.8,
+        help="Target acceptance probability (NumPyro)",
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="cuda",
+        help="Device for PyTorch/Pyro (cpu or cuda)",
+    )
 
     args = parser.parse_args()
     needs_jax = any(f in JAX_FRAMEWORKS for f in args.frameworks)
@@ -190,15 +259,18 @@ def main():
         ensure_jax_backend()
 
     # Print GPU status
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("GPU Configuration:")
-    print("="*60)
+    print("=" * 60)
     print(f"Device setting: {args.device}")
 
     # Check PyTorch GPU if needed
-    if args.device == "cuda" and any(f in args.frameworks for f in ["pyro", "handcoded_torch"]):
+    if args.device == "cuda" and any(
+        f in args.frameworks for f in ["pyro", "handcoded_torch"]
+    ):
         try:
             import torch
+
             if torch.cuda.is_available():
                 print(f"PyTorch CUDA: Available ({torch.cuda.get_device_name(0)})")
             else:
@@ -212,9 +284,9 @@ def main():
 
     # Run benchmarks for each framework and chain length
     for framework in args.frameworks:
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Running HMC benchmarks for {framework}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         framework_dir = args.output_dir / framework
         framework_dir.mkdir(parents=True, exist_ok=True)
@@ -246,7 +318,8 @@ def main():
             if results is not None:
                 # Clean results for JSON serialization
                 clean_results = {
-                    k: v for k, v in results.items()
+                    k: v
+                    for k, v in results.items()
                     if k not in ["samples", "log_weights"]
                 }
 
@@ -263,14 +336,16 @@ def main():
                 with open(output_file, "w") as f:
                     json.dump(clean_results, f, indent=2)
 
-                print(f"✓ {framework} HMC (n={n_samples}): {results['mean_time']:.3f}s ± {results['std_time']:.3f}s")
+                print(
+                    f"✓ {framework} HMC (n={n_samples}): {results['mean_time']:.3f}s ± {results['std_time']:.3f}s"
+                )
                 print(f"  Saved to: {output_file}")
             else:
                 print(f"✗ {framework} HMC (n={n_samples}): Failed")
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("HMC benchmarking complete!")
-    print("="*60)
+    print("=" * 60)
     print(f"\nRun the following to generate comparison plots:")
     print(f"python combine_results.py --frameworks {' '.join(args.frameworks)}")
 

@@ -42,6 +42,7 @@ def make_genjax_infer_is(n_particles: int):
 
     This follows the faircoin pattern for minimal overhead.
     """
+
     def infer(xs, ys):
         constraints = {"ys": ys}
 
@@ -191,7 +192,7 @@ def genjax_polynomial_hmc_timing(
             n_steps=const(total_steps),
             n_chains=const(1),  # Single chain for fair comparison
             burn_in=const(n_warmup),
-            autocorrelation_resampling=const(1)  # No thinning
+            autocorrelation_resampling=const(1),  # No thinning
         )
 
         # Extract samples
@@ -235,7 +236,7 @@ def genjax_polynomial_hmc_timing(
             "a": samples["a"].squeeze(),  # Remove chain dimension
             "b": samples["b"].squeeze(),
             "c": samples["c"].squeeze(),
-        }
+        },
     }
 
 
@@ -271,8 +272,10 @@ if __name__ == "__main__":
         "--output-dir", type=str, default=None, help="Output directory for results"
     )
     parser.add_argument(
-        "--method", choices=["is", "hmc", "all"], default="is",
-        help="Which method to benchmark"
+        "--method",
+        choices=["is", "hmc", "all"],
+        default="is",
+        help="Which method to benchmark",
     )
     parser.add_argument(
         "--n-samples", type=int, default=1000, help="Number of HMC samples"
@@ -280,12 +283,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--n-warmup", type=int, default=500, help="Number of HMC warmup samples"
     )
-    parser.add_argument(
-        "--step-size", type=float, default=0.01, help="HMC step size"
-    )
-    parser.add_argument(
-        "--n-leapfrog", type=int, default=20, help="HMC leapfrog steps"
-    )
+    parser.add_argument("--step-size", type=float, default=0.01, help="HMC step size")
+    parser.add_argument("--n-leapfrog", type=int, default=20, help="HMC leapfrog steps")
 
     args = parser.parse_args()
 
@@ -313,9 +312,9 @@ if __name__ == "__main__":
             result = genjax_polynomial_is_timing(
                 dataset,
                 n_particles,
-        repeats=args.repeats,
-        use_direct=args.use_direct,
-        inner_repeats=args.inner_repeats,
+                repeats=args.repeats,
+                use_direct=args.use_direct,
+                inner_repeats=args.inner_repeats,
             )
             is_results[f"n{n_particles}"] = result
 
@@ -349,9 +348,7 @@ if __name__ == "__main__":
 
         # Save HMC result
         result_file = output_dir / f"hmc_n{args.n_samples}.json"
-        result_to_save = {
-            k: v for k, v in hmc_result.items() if k != "samples"
-        }
+        result_to_save = {k: v for k, v in hmc_result.items() if k != "samples"}
         result_to_save["times"] = [
             float(t) for t in hmc_result["times"]
         ]  # Convert to Python floats

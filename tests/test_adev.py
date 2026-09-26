@@ -334,10 +334,13 @@ class TestADEVVmapSemantics:
         def model(p):
             b = flip_mvd_dist(p) @ "b"
             x = b.astype(jnp.float32)
-            _ = multivariate_normal_reparam(
-                jnp.array([x, 0.0], dtype=jnp.float32),
-                jnp.eye(2, dtype=jnp.float32) * 0.1,
-            ) @ "y"
+            _ = (
+                multivariate_normal_reparam(
+                    jnp.array([x, 0.0], dtype=jnp.float32),
+                    jnp.eye(2, dtype=jnp.float32) * 0.1,
+                )
+                @ "y"
+            )
 
         @expectation
         def objective(p):

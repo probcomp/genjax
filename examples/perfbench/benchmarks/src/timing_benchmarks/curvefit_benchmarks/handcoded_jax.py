@@ -70,7 +70,7 @@ def handcoded_jax_polynomial_is_timing(
     def task():
         result = jitted_is(key, xs, ys, n_particles)
         # Block only on log weights for fair comparison
-        jax.block_until_ready(result['log_weights'])
+        jax.block_until_ready(result["log_weights"])
         return result
 
     # Run benchmark with automatic warm-up - more inner repeats for accuracy
@@ -94,14 +94,12 @@ def handcoded_jax_polynomial_is_timing(
         "mean_time": mean_time,
         "std_time": std_time,
         "samples": {
-            "a": samples['a'],
-            "b": samples['b'],
-            "c": samples['c'],
+            "a": samples["a"],
+            "b": samples["b"],
+            "c": samples["c"],
         },
-        "log_weights": samples['log_weights'],
+        "log_weights": samples["log_weights"],
     }
-
-
 
 
 def handcoded_jax_polynomial_hmc_timing(
@@ -129,7 +127,7 @@ def handcoded_jax_polynomial_hmc_timing(
         log_lik = jax.scipy.stats.norm.logpdf(ys, y_pred, 0.05).sum()
 
         # Priors: Normal(0, 1) for all parameters
-        log_prior = jax.scipy.stats.norm.logpdf(params, 0., 1.).sum()
+        log_prior = jax.scipy.stats.norm.logpdf(params, 0.0, 1.0).sum()
 
         return log_lik + log_prior
 
@@ -165,7 +163,7 @@ def handcoded_jax_polynomial_hmc_timing(
 
         # Metropolis accept/reject
         key, subkey = jax.random.split(key)
-        accept_prob = jnp.minimum(1., jnp.exp(initial_energy - new_energy))
+        accept_prob = jnp.minimum(1.0, jnp.exp(initial_energy - new_energy))
         accept = jax.random.uniform(subkey) < accept_prob
 
         q = jax.lax.cond(accept, lambda _: q_new, lambda _: q, operand=None)
@@ -227,7 +225,7 @@ def handcoded_jax_polynomial_hmc_timing(
             "a": samples[:, 0],
             "b": samples[:, 1],
             "c": samples[:, 2],
-        }
+        },
     }
 
 
@@ -240,17 +238,28 @@ if __name__ == "__main__":
     from ..data.generation import generate_polynomial_data
 
     parser = argparse.ArgumentParser(description="Run Handcoded JAX+TFP benchmarks")
-    parser.add_argument("--n-particles", type=int, nargs="+",
-                        default=[100, 1000, 10000, 100000],
-                        help="Number of particles for IS")
-    parser.add_argument("--n-points", type=int, default=50,
-                        help="Number of data points")
-    parser.add_argument("--repeats", type=int, default=50,
-                        help="Number of timing repetitions")
-    parser.add_argument("--inner-repeats", type=int, default=50,
-                        help="Inner timing repeats for IS")
-    parser.add_argument("--output-dir", type=str, default="data/handcoded_jax",
-                        help="Output directory for results")
+    parser.add_argument(
+        "--n-particles",
+        type=int,
+        nargs="+",
+        default=[100, 1000, 10000, 100000],
+        help="Number of particles for IS",
+    )
+    parser.add_argument(
+        "--n-points", type=int, default=50, help="Number of data points"
+    )
+    parser.add_argument(
+        "--repeats", type=int, default=50, help="Number of timing repetitions"
+    )
+    parser.add_argument(
+        "--inner-repeats", type=int, default=50, help="Inner timing repeats for IS"
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="data/handcoded_jax",
+        help="Output directory for results",
+    )
 
     args = parser.parse_args()
 
@@ -278,15 +287,21 @@ if __name__ == "__main__":
 
         # Save individual result (without samples to avoid JAX array serialization)
         result_file = output_dir / f"is_n{n_particles}.json"
-        result_to_save = {k: v for k, v in result.items() if k not in ['samples', 'log_weights']}
-        result_to_save['times'] = [float(t) for t in result['times']]  # Convert to Python floats
+        result_to_save = {
+            k: v for k, v in result.items() if k not in ["samples", "log_weights"]
+        }
+        result_to_save["times"] = [
+            float(t) for t in result["times"]
+        ]  # Convert to Python floats
         with open(result_file, "w") as f:
             json.dump(result_to_save, f, indent=2)
 
     results["is"] = is_results
 
     # Save summary (with cleaned results)
-    summary_file = output_dir / f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    summary_file = (
+        output_dir / f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    )
 
     # Clean up results for JSON serialization
     clean_results = {}
@@ -296,12 +311,15 @@ if __name__ == "__main__":
             for key, result in method_results.items():
                 if isinstance(result, dict):
                     clean_result = {
-                        k: v for k, v in result.items()
-                        if k not in ['samples', 'log_weights']
+                        k: v
+                        for k, v in result.items()
+                        if k not in ["samples", "log_weights"]
                     }
                     # Convert times to Python floats
-                    if 'times' in clean_result:
-                        clean_result['times'] = [float(t) for t in clean_result['times']]
+                    if "times" in clean_result:
+                        clean_result["times"] = [
+                            float(t) for t in clean_result["times"]
+                        ]
                     clean_results[method][key] = clean_result
                 else:
                     clean_results[method] = result
@@ -309,14 +327,18 @@ if __name__ == "__main__":
             clean_results[method] = method_results
 
     with open(summary_file, "w") as f:
-        json.dump({
-            "framework": "handcoded_jax",
-            "dataset": {
-                "n_points": dataset.n_points,
-                "noise_std": float(dataset.noise_std),
+        json.dump(
+            {
+                "framework": "handcoded_jax",
+                "dataset": {
+                    "n_points": dataset.n_points,
+                    "noise_std": float(dataset.noise_std),
+                },
+                "config": vars(args),
+                "results": clean_results,
             },
-            "config": vars(args),
-            "results": clean_results
-        }, f, indent=2)
+            f,
+            indent=2,
+        )
 
     print(f"\nResults saved to {output_dir}")
