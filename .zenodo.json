@@ -70,7 +70,76 @@
       "scheme": "url"
     }
   ],
-  "contributors": [],
+  "contributors": [
+    {
+      "name": "Brulhardt, Matthew",
+      "type": "Other"
+    },
+    {
+      "name": "Burnim, Jacob",
+      "type": "Other"
+    },
+    {
+      "name": "Dalle, Guillaume",
+      "type": "Other"
+    },
+    {
+      "name": "Dasgupta, Arijit",
+      "type": "Other"
+    },
+    {
+      "name": "Freer, Cameron",
+      "type": "Other"
+    },
+    {
+      "name": "Ghavami, Matin",
+      "type": "Other"
+    },
+    {
+      "name": "Hiser, Alex",
+      "type": "Other"
+    },
+    {
+      "name": "Huebert, Matt",
+      "type": "Other"
+    },
+    {
+      "name": "Klukas, Mirko",
+      "type": "Other"
+    },
+    {
+      "name": "Köster, Urs",
+      "type": "Other"
+    },
+    {
+      "name": "Lee, Ben",
+      "type": "Other"
+    },
+    {
+      "name": "Limarta, Ian",
+      "type": "Other"
+    },
+    {
+      "name": "Loula, Joao",
+      "type": "Other"
+    },
+    {
+      "name": "MacIver, David R.",
+      "type": "Other"
+    },
+    {
+      "name": "Pottharst, Jay",
+      "type": "Other"
+    },
+    {
+      "name": "Saurous, Rif A.",
+      "type": "Other"
+    },
+    {
+      "name": "Zaiser, Fabian",
+      "type": "Other"
+    }
+  ],
   "references": [
     "POPL 2026: Probabilistic Programming with Vectorized Programmable Inference"
   ],
