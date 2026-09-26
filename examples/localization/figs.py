@@ -434,11 +434,7 @@ def plot_particle_filter_evolution(
     # Create figure with 4x4 grid layout
     fig, axes = plt.subplots(n_rows, n_cols, figsize=(3 * n_cols, 3 * n_rows))
 
-    # Handle different subplot array structures for (1, 4) layout
-    if n_cols == 1:
-        axes = [axes]
-    else:
-        axes = axes.flatten() if hasattr(axes, "flatten") else axes
+    axes = axes.flatten()
 
     for i, step_idx in enumerate(step_indices):
         ax = axes[i]
@@ -1836,11 +1832,11 @@ def plot_smc_method_comparison(
 
         legend_elements = [
             Patch(facecolor=colors[method], label=method_labels[method])
-            for method in sorted_methods
+            for method in sorted_methods_by_speed
         ]
         legend = fig.legend(
             legend_elements,
-            [method_labels[method] for method in sorted_methods],
+            [method_labels[method] for method in sorted_methods_by_speed],
             loc="lower center",
             bbox_to_anchor=(0.5, 0.02),
             ncol=len(legend_elements),

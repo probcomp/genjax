@@ -14,51 +14,6 @@ from .core import (
 )
 
 
-def create_room_navigation_trajectory():
-    """Create a trajectory that navigates from Room 1 to Room 3.
-
-    Goes from lower-left corner of Room 1 (0.5, 0.5) to
-    upper-right corner of Room 3 (11.5, 9.5).
-
-    Room layout:
-    - Room 1: x=[0, 4], y=[0, 10]
-    - Room 2: x=[4, 8], y=[0, 10]
-    - Room 3: x=[8, 12], y=[0, 10]
-    - Doorway 1→2: x=4, y=[3, 5]
-    - Doorway 2→3: x=8, y=[4, 6]
-    """
-    return [
-        # Phase 1: Move from Room 1 lower-left to doorway (0.5,0.5) → (4,4)
-        Control(
-            velocity=1.2, angular_velocity=jnp.pi / 6
-        ),  # Step 1: Turn slightly up-right
-        Control(velocity=1.8, angular_velocity=0.0),  # Step 2: Move toward doorway
-        Control(velocity=1.8, angular_velocity=0.0),  # Step 3: Continue toward doorway
-        Control(
-            velocity=1.5, angular_velocity=0.0
-        ),  # Step 4: Approach doorway entrance
-        # Phase 2: Navigate through Room 2 to reach second doorway (4,4) → (8,5)
-        Control(velocity=1.5, angular_velocity=0.0),  # Step 5: Enter Room 2
-        Control(
-            velocity=1.2, angular_velocity=jnp.pi / 8
-        ),  # Step 6: Turn slightly up toward Room 3 doorway
-        Control(
-            velocity=1.8, angular_velocity=0.0
-        ),  # Step 7: Move toward Room 3 doorway
-        Control(velocity=1.5, angular_velocity=0.0),  # Step 8: Approach Room 3 doorway
-        # Phase 3: Enter Room 3 and navigate to upper-right corner (8,5) → (11.5,9.5)
-        Control(velocity=1.5, angular_velocity=0.0),  # Step 9: Enter Room 3
-        Control(
-            velocity=1.2, angular_velocity=jnp.pi / 4
-        ),  # Step 10: Turn up-right toward corner
-        Control(velocity=1.8, angular_velocity=0.0),  # Step 11: Move toward upper-right
-        Control(velocity=1.8, angular_velocity=0.0),  # Step 12: Continue toward corner
-        Control(
-            velocity=1.5, angular_velocity=0.0
-        ),  # Step 13: Reach upper-right corner
-    ]
-
-
 def create_waypoint_trajectory_room1_to_room3():
     """Create a trajectory using explicit waypoints from Room 1 to Room 3.
 
