@@ -794,8 +794,6 @@ def init_csmc(
     """
     Initialize particle collection for conditional SMC with retained particle.
 
-    Simple approach: run regular init and manually override particle 0.
-
     Args:
         target_gf: Target generative function (model)
         target_args: Arguments for target generative function
@@ -819,19 +817,22 @@ def init_csmc(
         proposal_gf=proposal_gf,
     )
 
-    # Assess the retained choices to get the correct weight
-    retained_log_density, _ = target_gf.assess(retained_choices, *target_args)
+    # A fully constrained generation supplies the retained trace and its density.
+    retained_trace, retained_log_density = target_gf.generate(
+        retained_choices, *target_args
+    )
 
-    # Set particle 0's weight to match the retained choice assessment
+    traces = jtu.tree_map(
+        lambda batched, retained: batched.at[0].set(retained),
+        particles.traces,
+        retained_trace,
+    )
+
     new_log_weights = particles.log_weights.at[0].set(retained_log_density)
 
-    # For now, return the particles with updated weight
-    # The choice override would require rebuilding the trace, which is complex
-    # This simplified version just ensures the weight is correct
-    return ParticleCollection(
-        traces=particles.traces,
+    return _create_particle_collection(
+        traces=traces,
         log_weights=new_log_weights,
-        diagnostic_weights=particles.diagnostic_weights,
         n_samples=particles.n_samples,
         log_marginal_estimate=particles.log_marginal_estimate,
     )
@@ -866,7 +867,7 @@ def extend_csmc(
         old_trace: Trace[X, R],
         old_log_weight: jnp.ndarray,
         particle_args: Any,
-        is_retained: bool,
+        is_retained: Any,
     ) -> tuple[Trace[X, R], jnp.ndarray]:
         # Convert particle_args to tuple if needed
         if isinstance(particle_args, tuple):
@@ -876,17 +877,8 @@ def extend_csmc(
 
         # For retained particle (index 0), use retained_choices exactly
         def retained_extension():
-            # Assess retained choices with extended model
-            log_density, retval = extended_target_gf.assess(retained_choices, *args)
-
-            from genjax.core import Tr
-
-            new_trace = Tr(
-                _gen_fn=extended_target_gf,
-                _args=(args, {}),
-                _choices=retained_choices,
-                _retval=retval,
-                _score=-log_density,
+            new_trace, log_density = extended_target_gf.generate(
+                retained_choices, *args
             )
             # Weight accumulation: old weight + log density
             new_log_weight = old_log_weight + log_density
