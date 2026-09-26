@@ -70,7 +70,9 @@ def _bench_env() -> dict[str, str]:
     env = os.environ.copy()
     bench_path = str(BENCH_ROOT / "src")
     current = env.get("PYTHONPATH")
-    env["PYTHONPATH"] = bench_path if not current else f"{bench_path}{os.pathsep}{current}"
+    env["PYTHONPATH"] = (
+        bench_path if not current else f"{bench_path}{os.pathsep}{current}"
+    )
     depot_path = CASE_ROOT / ".julia_depot"
     depot_path.mkdir(exist_ok=True)
     env["JULIA_DEPOT_PATH"] = str(depot_path)
@@ -322,7 +324,9 @@ def _print_is_timings(framework: str, output_dir: Path, particles: list[int]) ->
             print(f"    ↳ IS {framework} @ n={n}: failed to read timings ({err})")
 
 
-def _print_hmc_timings(framework: str, output_dir: Path, chain_lengths: list[int]) -> None:
+def _print_hmc_timings(
+    framework: str, output_dir: Path, chain_lengths: list[int]
+) -> None:
     fw_dir = output_dir / framework
     for n in chain_lengths:
         path = fw_dir / f"hmc_n{n}.json"
@@ -349,8 +353,12 @@ def command_pipeline(args: argparse.Namespace) -> None:
     mode = args.mode
     particles = args.particles or [1000, 5000, 10000]
     shared_fw = args.frameworks or []
-    is_frameworks = args.is_frameworks or (shared_fw if shared_fw else DEFAULT_IS_FRAMEWORKS)
-    hmc_frameworks = args.hmc_frameworks or (shared_fw if shared_fw else DEFAULT_HMC_FRAMEWORKS)
+    is_frameworks = args.is_frameworks or (
+        shared_fw if shared_fw else DEFAULT_IS_FRAMEWORKS
+    )
+    hmc_frameworks = args.hmc_frameworks or (
+        shared_fw if shared_fw else DEFAULT_HMC_FRAMEWORKS
+    )
     norm_hmc = [_normalize_hmc_framework(fw) for fw in hmc_frameworks]
     device = "cuda" if mode == "cuda" else "cpu"
 
@@ -360,9 +368,13 @@ def command_pipeline(args: argparse.Namespace) -> None:
     figs_root.mkdir(parents=True, exist_ok=True)
     curvefit_root = (data_root / "curvefit").resolve()
     curvefit_root.mkdir(parents=True, exist_ok=True)
-    dataset_output = (args.data_output or curvefit_root / "polynomial_data.npz").resolve()
+    dataset_output = (
+        args.data_output or curvefit_root / "polynomial_data.npz"
+    ).resolve()
     dataset_output.parent.mkdir(parents=True, exist_ok=True)
-    export_prefix = args.fig_prefix or ("perfbench" if mode == "cuda" else "perfbench_cpu")
+    export_prefix = args.fig_prefix or (
+        "perfbench" if mode == "cuda" else "perfbench_cpu"
+    )
     export_dest = (CASE_ROOT / args.export_dest).resolve()
     export_dest.mkdir(parents=True, exist_ok=True)
     hmc_output_dir = (data_root if mode == "cuda" else curvefit_root).resolve()
@@ -391,7 +403,11 @@ def command_pipeline(args: argparse.Namespace) -> None:
             env_name = _is_env_for_framework(framework, mode)
             framework_repeats = args.is_repeats
             framework_inner_repeats = args.is_inner_repeats
-            if framework == "pyro" and args.is_repeats == DEFAULT_IS_REPEATS and args.is_inner_repeats == DEFAULT_IS_INNER_REPEATS:
+            if (
+                framework == "pyro"
+                and args.is_repeats == DEFAULT_IS_REPEATS
+                and args.is_inner_repeats == DEFAULT_IS_INNER_REPEATS
+            ):
                 framework_repeats = PYRO_IS_REPEATS
                 framework_inner_repeats = PYRO_IS_INNER_REPEATS
             elif (
@@ -431,7 +447,13 @@ def command_pipeline(args: argparse.Namespace) -> None:
     # Defer plotting until after inference stages; we'll combine selectively later.
 
     if not args.skip_hmc:
-        def run_hmc_group(frameworks: list[str], env_name: str | None, device_arg: str | None = None, env_overrides: dict[str, str] | None = None):
+
+        def run_hmc_group(
+            frameworks: list[str],
+            env_name: str | None,
+            device_arg: str | None = None,
+            env_overrides: dict[str, str] | None = None,
+        ):
             if not frameworks:
                 return
             cli = [
@@ -458,7 +480,9 @@ def command_pipeline(args: argparse.Namespace) -> None:
             print(f"→ HMC {', '.join(frameworks)} (env={env_name or 'default'})")
             _run_example_script(env_name, *cli, env_overrides=env_overrides)
 
-        jax_group = [fw for fw in norm_hmc if fw in {"genjax", "numpyro", "handcoded_jax"}]
+        jax_group = [
+            fw for fw in norm_hmc if fw in {"genjax", "numpyro", "handcoded_jax"}
+        ]
         pyro_group = [fw for fw in norm_hmc if fw == "pyro"]
         torch_group = [fw for fw in norm_hmc if fw == "handcoded_torch"]
         genjl_requested = "genjl" in norm_hmc
@@ -603,20 +627,52 @@ def build_parser() -> argparse.ArgumentParser:
 
     pipeline = sub.add_parser("pipeline", help="Run the full perfbench case study")
     pipeline.add_argument("--mode", choices=["cpu", "cuda"], default="cpu")
-    pipeline.add_argument("--inference", choices=["all", "is", "hmc"], default="all",
-                          help="Select which inference stages to run (default: all).")
-    pipeline.add_argument("--particles", type=int, nargs="+", help="Particle counts for IS sweeps.")
-    pipeline.add_argument("--is-frameworks", nargs="+", help="Frameworks to include in the IS sweep (overrides --frameworks).")
-    pipeline.add_argument("--is-repeats", type=int, default=DEFAULT_IS_REPEATS, help="Timing repeats for IS.")
-    pipeline.add_argument("--is-inner-repeats", type=int, default=DEFAULT_IS_INNER_REPEATS, help="Inner timing repeats for IS.")
-    pipeline.add_argument("--hmc-frameworks", nargs="+", help="Frameworks to include in the HMC sweep (overrides --frameworks).")
-    pipeline.add_argument("--frameworks", nargs="+", help="Convenience list applied to --is-frameworks/--hmc-frameworks when those flags are omitted.")
-    pipeline.add_argument("--hmc-chain-lengths", type=int, nargs="+", default=[100, 500, 1000])
+    pipeline.add_argument(
+        "--inference",
+        choices=["all", "is", "hmc"],
+        default="all",
+        help="Select which inference stages to run (default: all).",
+    )
+    pipeline.add_argument(
+        "--particles", type=int, nargs="+", help="Particle counts for IS sweeps."
+    )
+    pipeline.add_argument(
+        "--is-frameworks",
+        nargs="+",
+        help="Frameworks to include in the IS sweep (overrides --frameworks).",
+    )
+    pipeline.add_argument(
+        "--is-repeats",
+        type=int,
+        default=DEFAULT_IS_REPEATS,
+        help="Timing repeats for IS.",
+    )
+    pipeline.add_argument(
+        "--is-inner-repeats",
+        type=int,
+        default=DEFAULT_IS_INNER_REPEATS,
+        help="Inner timing repeats for IS.",
+    )
+    pipeline.add_argument(
+        "--hmc-frameworks",
+        nargs="+",
+        help="Frameworks to include in the HMC sweep (overrides --frameworks).",
+    )
+    pipeline.add_argument(
+        "--frameworks",
+        nargs="+",
+        help="Convenience list applied to --is-frameworks/--hmc-frameworks when those flags are omitted.",
+    )
+    pipeline.add_argument(
+        "--hmc-chain-lengths", type=int, nargs="+", default=[100, 500, 1000]
+    )
     pipeline.add_argument("--hmc-repeats", type=int, default=100)
     pipeline.add_argument("--hmc-warmup", type=int, default=50)
     pipeline.add_argument("--hmc-step-size", type=float, default=0.01)
     pipeline.add_argument("--hmc-n-leapfrog", type=int, default=20)
-    pipeline.add_argument("--data-output", type=Path, help="Override dataset output path.")
+    pipeline.add_argument(
+        "--data-output", type=Path, help="Override dataset output path."
+    )
     pipeline.add_argument("--data-n-points", type=int, default=50)
     pipeline.add_argument("--data-seed", type=int, default=42)
     pipeline.add_argument("--fig-prefix", help="Prefix for exported figures.")
@@ -626,11 +682,17 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("../../figs"),
         help="Destination directory for exported figures.",
     )
-    pipeline.add_argument("--skip-generate", action="store_true", help="Reuse existing dataset.")
+    pipeline.add_argument(
+        "--skip-generate", action="store_true", help="Reuse existing dataset."
+    )
     pipeline.add_argument("--skip-is", action="store_true", help="Skip IS sweep.")
     pipeline.add_argument("--skip-hmc", action="store_true", help="Skip HMC sweep.")
-    pipeline.add_argument("--skip-plots", action="store_true", help="Skip plotting steps.")
-    pipeline.add_argument("--skip-export", action="store_true", help="Skip exporting figures.")
+    pipeline.add_argument(
+        "--skip-plots", action="store_true", help="Skip plotting steps."
+    )
+    pipeline.add_argument(
+        "--skip-export", action="store_true", help="Skip exporting figures."
+    )
     pipeline.set_defaults(func=command_pipeline)
 
     comb = sub.add_parser("combine", help="Combine timing JSON into plots/tables")
@@ -643,15 +705,21 @@ def build_parser() -> argparse.ArgumentParser:
     clean.set_defaults(func=command_clean)
 
     genjl_hmc = sub.add_parser("genjl-hmc", help="Run Gen.jl HMC benchmarks")
-    genjl_hmc.add_argument("--chain-lengths", nargs="+", type=int, default=[100, 500, 1000])
+    genjl_hmc.add_argument(
+        "--chain-lengths", nargs="+", type=int, default=[100, 500, 1000]
+    )
     genjl_hmc.add_argument("--n-warmup", type=int, default=50)
     genjl_hmc.add_argument("--repeats", type=int, default=10)
     genjl_hmc.add_argument("--step-size", type=float, default=0.01)
     genjl_hmc.add_argument("--n-leapfrog", type=int, default=20)
     genjl_hmc.add_argument("--n-points", type=int, default=50)
     genjl_hmc.add_argument("--seed", type=int, default=42)
-    genjl_hmc.add_argument("--dataset", type=Path, default=Path("data/curvefit/polynomial_data.npz"))
-    genjl_hmc.add_argument("--output-dir", type=Path, default=Path("data/curvefit/genjl"))
+    genjl_hmc.add_argument(
+        "--dataset", type=Path, default=Path("data/curvefit/polynomial_data.npz")
+    )
+    genjl_hmc.add_argument(
+        "--output-dir", type=Path, default=Path("data/curvefit/genjl")
+    )
     genjl_hmc.set_defaults(func=command_genjl_hmc)
 
     export = sub.add_parser("export", help="Copy figures/tables to another directory")
