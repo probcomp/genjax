@@ -91,7 +91,6 @@ def save_posterior_scaling_plots(n_runs=1000, seed=42):
 
     print("Making posterior scaling plots (N=10, 100, 100000)...")
 
-    # Get reference dataset
     data = get_reference_dataset(seed=seed)
     xs = data["xs"]
     ys = data["ys"]
@@ -154,14 +153,12 @@ def save_posterior_scaling_plots(n_runs=1000, seed=42):
             zorder=41,
         )
 
-        # Collect posterior curves
         posterior_curves = []
 
         # Run IS multiple times, each time resampling a single particle
         for run in range(n_runs):
             run_key = jrand.key(seed + run * 1000 + n_particles)
 
-            # Run importance sampling
             samples, weights = infer_latents_jit(run_key, xs, ys, Const(n_particles))
 
             # Normalize weights for resampling
@@ -179,7 +176,6 @@ def save_posterior_scaling_plots(n_runs=1000, seed=42):
             b_sample = samples.get_choices()["curve"]["b"][sample_idx]
             c_sample = samples.get_choices()["curve"]["c"][sample_idx]
 
-            # Compute curve
             curve_sample = a_sample + b_sample * x_plot + c_sample * x_plot**2
             posterior_curves.append(curve_sample)
 
@@ -221,7 +217,7 @@ def save_posterior_scaling_plots(n_runs=1000, seed=42):
         )
         apply_grid_style(ax)
         ax.set_xlim(-0.1, 1.1)
-        ax.set_ylim(-0.4, 0.4)  # Fixed y-limits as requested
+        ax.set_ylim(-0.4, 0.4)  # Fixed y-limits
 
         # Apply GRVS 3-tick standard
         apply_standard_ticks(ax)
@@ -268,7 +264,6 @@ def save_inference_scaling_viz(
     if extended_timing:
         print("  Running extended timing trials to capture GPU behavior...")
 
-    # Get reference dataset
     data = get_reference_dataset()
     xs = data["xs"]
     ys = data["ys"]
@@ -659,7 +654,7 @@ def save_outlier_detection_comparison(
 
         Key design:
         - True curve parameters well within Normal(0,1) priors
-        - Outliers at -2.0 are well within Normal(0,5) support
+        - Five outliers near +1.2 sit well above the curve
         - Standard model will get pulled toward outliers (showing its failure)
         - Outlier model can correctly separate inliers from outliers
         """
@@ -692,7 +687,6 @@ def save_outlier_detection_comparison(
 
         Run multiple independent IS approximations to get diverse posterior samples.
         """
-        # JIT compile
         infer_jit = jax.jit(seed(infer_latents))
 
         # Run multiple independent IS trials
@@ -722,7 +716,7 @@ def save_outlier_detection_comparison(
                 }
             )
 
-        return curve_samples  # Return all curves
+        return curve_samples
 
     def run_outlier_is(xs, ys, n_samples=1000, n_trials=500):
         """Run IS on outlier model."""
@@ -730,10 +724,8 @@ def save_outlier_detection_comparison(
         # Only constrain observations, let curve parameters be inferred
         constraints = {"ys": {"y": {"obs": ys}}}
 
-        # JIT compile
         init_jit = jax.jit(seed(init))
 
-        # Collect samples
         outlier_samples = []
         curve_samples = []
 
@@ -775,7 +767,7 @@ def save_outlier_detection_comparison(
         outlier_samples = jnp.array(outlier_samples)
         outlier_probs = jnp.mean(outlier_samples, axis=0)
 
-        return outlier_probs, curve_samples  # Return all curves
+        return outlier_probs, curve_samples
 
     def run_gibbs_hmc(xs, ys, n_chains=500, n_iterations=5000):
         """Run Gibbs+HMC with 500 parallel chains, taking final sample from each."""
@@ -963,7 +955,6 @@ def save_outlier_detection_comparison(
         2, 3, height_ratios=[10, 1], width_ratios=[1, 1, 1], hspace=0.35
     )
 
-    # Create the three main axes
     axes = [fig.add_subplot(gs[0, i]) for i in range(3)]
 
     # We'll add the title after setting up the panels to ensure proper alignment
@@ -1011,7 +1002,6 @@ def save_outlier_detection_comparison(
 
     # No outlier bounds for standard model
 
-    # Plot true curve
     ax.plot(x_plot, y_true, "k-", linewidth=3, label="True curve", zorder=50)
 
     # Plot posterior curves with better alpha blending
@@ -1036,7 +1026,7 @@ def save_outlier_detection_comparison(
     ax.set_ylabel("Y", fontweight="bold", fontsize=18, rotation=0, labelpad=20)
     ax.set_title("Curve model", fontsize=20, fontweight="bold", pad=10)
     apply_grid_style(ax)
-    apply_standard_ticks(ax)  # Apply 3-tick standard
+    apply_standard_ticks(ax)
     ax.set_ylim(-2.5, 2.5)
 
     # Add local legend for first subplot with thicker lines
@@ -1106,7 +1096,6 @@ def save_outlier_detection_comparison(
     )
     ax.axhline(y=2.0, color="red", linestyle="--", linewidth=2, alpha=0.5)
 
-    # Plot true curve
     ax.plot(x_plot, y_true, "k-", linewidth=3, zorder=50)
 
     # Plot posterior curves with better alpha blending
@@ -1139,9 +1128,8 @@ def save_outlier_detection_comparison(
     )
 
     ax.set_xlabel("X", fontweight="bold", fontsize=18)
-    # Remove title
     apply_grid_style(ax)
-    apply_standard_ticks(ax)  # Apply 3-tick standard
+    apply_standard_ticks(ax)
     ax.set_ylim(-2.5, 2.5)
     # Share y-axis - remove y-axis labels and ticks
     ax.set_yticklabels([])
@@ -1227,7 +1215,6 @@ def save_outlier_detection_comparison(
     ax.axhline(y=-2.0, color="red", linestyle="--", linewidth=2, alpha=0.5)
     ax.axhline(y=2.0, color="red", linestyle="--", linewidth=2, alpha=0.5)
 
-    # Plot true curve
     ax.plot(x_plot, y_true, "k-", linewidth=3, zorder=50)
 
     # Plot posterior curves with better alpha blending
@@ -1255,9 +1242,8 @@ def save_outlier_detection_comparison(
     )
 
     ax.set_xlabel("X", fontweight="bold", fontsize=18)
-    # Remove title
     apply_grid_style(ax)
-    apply_standard_ticks(ax)  # Apply 3-tick standard
+    apply_standard_ticks(ax)
     ax.set_ylim(-2.5, 2.5)
     # Share y-axis - remove y-axis labels and ticks
     ax.set_yticklabels([])

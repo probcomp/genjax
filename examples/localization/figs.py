@@ -424,7 +424,7 @@ def plot_particle_filter_evolution(
     """Plot evolution of particle filter over time with enhanced grid layout."""
     n_steps = len(particle_history)
 
-    # Fixed layout: 4x4 grid showing all 16 timesteps
+    # 4x4 grid showing all 16 timesteps
     n_rows = 4
     n_cols = 4
 
@@ -657,7 +657,6 @@ def plot_sensor_observations(observations, true_distances=None, save_path=None):
 
             ax.set_xlabel("Ray Angle (radians)", fontweight="bold")
             ax.set_ylabel("Distance (m)", fontweight="bold")
-            # Title removed following curvefit "no titles" principle
             ax.legend(fontsize=16)
             ax.grid(True, alpha=0.3)
             set_minimal_ticks(ax)
@@ -736,7 +735,7 @@ def plot_sensor_observations(observations, true_distances=None, save_path=None):
                 if ray_idx % n_cols == 0:
                     ax.set_ylabel("Distance", fontweight="bold")
 
-                # Show ray info in text box instead of title - moved further into subplot
+                # Show ray info in a text box inside the subplot
                 ax.text(
                     0.15,
                     0.85,
@@ -777,7 +776,6 @@ def plot_sensor_observations(observations, true_distances=None, save_path=None):
 
         ax.set_xlabel("Time Step", fontweight="bold")
         ax.set_ylabel("Distance to Wall (m)", fontweight="bold")
-        # Title removed following curvefit "no titles" principle
         ax.grid(True, alpha=0.3)
         ax.legend(fontsize=16)
         set_minimal_ticks(ax)
@@ -848,7 +846,6 @@ def plot_ground_truth_trajectory(
     ax2.set_xlabel("Time Step", fontweight="bold")
     ax2.set_ylabel("Velocity", color="b", fontweight="bold")
     ax2_twin.set_ylabel("Angular Velocity (rad/s)", color="r", fontweight="bold")
-    # Title removed following curvefit "no titles" principle
     ax2.grid(True, alpha=0.3)
 
     # Combine legends
@@ -872,7 +869,6 @@ def plot_ground_truth_trajectory(
     ax3.set_xlabel("Time Step", fontweight="bold")
     ax3.set_ylabel("Position", fontweight="bold")
     ax3_twin.set_ylabel("Heading (rad)", color="r", fontweight="bold")
-    # Title removed following curvefit "no titles" principle
     ax3.grid(True, alpha=0.3)
     ax3.legend(loc="upper left", fontsize=16)
     ax3_twin.legend(loc="upper right", fontsize=16)
@@ -889,7 +885,6 @@ def plot_ground_truth_trajectory(
     )
     ax4.set_xlabel("Time Step", fontweight="bold")
     ax4.set_ylabel("Distance to Wall (m)", fontweight="bold")
-    # Title removed following curvefit "no titles" principle
     ax4.grid(True, alpha=0.3)
     ax4.legend(fontsize=16)
 
@@ -919,7 +914,7 @@ def plot_lidar_demo(pose: Pose, world: World, save_path=None, n_rays=8):
     ax.spines["bottom"].set_visible(False)
     ax.spines["left"].set_visible(False)
 
-    # Plot robot pose with GRVS color - increased arrow length and marker size
+    # Plot robot pose with GRVS color
     plot_pose(
         pose,
         ax,
@@ -992,7 +987,6 @@ def plot_lidar_demo(pose: Pose, world: World, save_path=None, n_rays=8):
         shadow=True,
         framealpha=0.9,
     )
-    # Title removed following curvefit "no titles" principle
 
     if save_path:
         plt.savefig(save_path, dpi=150, bbox_inches="tight")
@@ -1239,7 +1233,7 @@ def plot_weight_flow(weight_data, save_path=None):
         jitter=0.05,
         point_size=8,
         alpha=0.7,
-        orient="v",  # Changed to vertical to make time flow horizontally
+        orient="v",  # Vertical orientation makes time flow horizontally
     )
 
     # Add ESS annotations (adjusted for horizontal time flow)
@@ -1457,12 +1451,11 @@ def plot_smc_method_comparison(
     include_ess_row=False,
     include_legend=False,
 ):
-    """Create comprehensive comparison plot for different SMC methods."""
+    """Create a comparison plot for different SMC methods."""
     # Define colors first
     colors = {
         "smc_basic": "#1f77b4",
         "smc_hmc": "#2ca02c",
-        # Removed smc_locally_optimal
         "smc_locally_optimal_big_grid": "#ff7f0e",
     }
 
@@ -1517,7 +1510,6 @@ def plot_smc_method_comparison(
     grayscale_colors = {
         "smc_basic": "#404040",
         "smc_hmc": "#606060",
-        # Removed smc_locally_optimal
         "smc_locally_optimal_big_grid": "#a0a0a0",
     }
 
@@ -1665,7 +1657,7 @@ def plot_smc_method_comparison(
         # Color-code the method with frame (more prominent)
         for spine in ax_particles.spines.values():
             spine.set_color(colors[method_name])
-            spine.set_linewidth(6)  # Increased from 3 for more prominence
+            spine.set_linewidth(6)  # Thick for prominence
             spine.set_visible(True)
 
         # Add "End" label on the leftmost plot only

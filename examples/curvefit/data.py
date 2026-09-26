@@ -60,11 +60,9 @@ def generate_test_dataset(key=None, n_points=10, seed=42):
     seeded_simulate = genjax_seed(npoint_curve.simulate)
     trace = seeded_simulate(key, xs)
 
-    # Extract results from trace
     curve, (xs_ret, ys) = trace.get_retval()
     choices = trace.get_choices()
 
-    # Extract true parameters
     true_a = float(choices["curve"]["a"])
     true_b = float(choices["curve"]["b"])
     true_c = float(choices["curve"]["c"])
@@ -72,7 +70,6 @@ def generate_test_dataset(key=None, n_points=10, seed=42):
     # Generate clean values for reference
     clean_ys = polyfn(xs, true_a, true_b, true_c)
 
-    # Package results
     result = {
         "xs": xs,
         "ys": ys,
@@ -94,7 +91,7 @@ def generate_easy_inference_dataset(
     n_points=5,
     noise_std=0.05,
     param_scale=0.3,
-    key=None,  # Noise to match model
+    key=None,
 ):
     """
     Generate an easier dataset for importance sampling.
@@ -107,7 +104,7 @@ def generate_easy_inference_dataset(
     Args:
         seed: Random seed for reproducibility
         n_points: Number of data points (default: 5, fewer than standard)
-        noise_std: Observation noise std (default: 0.05, matches updated model)
+        noise_std: Observation noise std (default: 0.05, the model's noise level)
         param_scale: Scale factor for parameters (default: 0.3, keeps them near 0)
         key: Optional JAX PRNG key
 
@@ -117,7 +114,6 @@ def generate_easy_inference_dataset(
     if key is None:
         key = jrand.key(seed)
 
-    # Generate input locations
     xs = jnp.linspace(0, 1, n_points, dtype=jnp.float32)
 
     # Generate parameters closer to prior mean (0)
@@ -129,7 +125,6 @@ def generate_easy_inference_dataset(
     key, subkey = jrand.split(key)
     true_c = param_scale * jrand.normal(subkey, shape=())
 
-    # Generate clean polynomial values
     clean_ys = polyfn(xs, true_a, true_b, true_c)
 
     # Add more noise than usual
@@ -137,7 +132,6 @@ def generate_easy_inference_dataset(
     noise = noise_std * jrand.normal(subkey, shape=(n_points,))
     ys = clean_ys + noise
 
-    # Package results
     result = {
         "xs": xs,
         "ys": ys,
@@ -162,7 +156,7 @@ def generate_fixed_dataset(
     true_b=-0.395,
     true_c=0.673,
     noise_std=0.05,
-    seed=42,  # Noise to match model
+    seed=42,
 ):
     """
     Generate a fixed dataset with specified parameters for consistent visualization.
@@ -179,18 +173,14 @@ def generate_fixed_dataset(
     """
     key = jrand.key(seed)
 
-    # Generate input locations
     xs = jnp.linspace(x_min, x_max, n_points, dtype=jnp.float32)
 
-    # Generate clean polynomial values
     clean_ys = polyfn(xs, true_a, true_b, true_c)
 
-    # Add noise
     key, subkey = jrand.split(key)
     noise = noise_std * jrand.normal(subkey, shape=(n_points,))
     ys = clean_ys + noise
 
-    # Package results
     result = {
         "xs": xs,
         "ys": ys,
@@ -211,7 +201,7 @@ def generate_dataset_with_outliers(
     n_points=20,
     outlier_fraction=0.15,
     outlier_scale=3.0,
-    noise_std=0.05,  # Noise to match model
+    noise_std=0.05,  # Matches the model's noise level
     seed=42,
     true_a=None,
     true_b=None,
@@ -240,7 +230,6 @@ def generate_dataset_with_outliers(
     if key is None:
         key = jrand.key(seed)
 
-    # Generate input locations
     xs = jnp.linspace(0, 1, n_points, dtype=jnp.float32)
 
     # Generate or use provided coefficients
@@ -254,10 +243,8 @@ def generate_dataset_with_outliers(
         key, subkey = jrand.split(key)
         true_c = jrand.normal(subkey, shape=()) * 0.5
 
-    # Generate clean polynomial values
     clean_ys = polyfn(xs, true_a, true_b, true_c)
 
-    # Determine which points are outliers
     key, subkey = jrand.split(key)
     is_outlier = jrand.uniform(subkey, shape=(n_points,)) < outlier_fraction
 
@@ -272,7 +259,6 @@ def generate_dataset_with_outliers(
     noise = jnp.where(is_outlier, outlier_noise, inlier_noise)
     ys = clean_ys + noise
 
-    # Package results
     result = {
         "xs": xs,
         "ys": ys,

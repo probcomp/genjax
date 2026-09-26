@@ -311,10 +311,9 @@ def distance_to_wall_lidar(
 # Generative functions for rejuvenation_smc API
 @gen
 def localization_model(prev_pose, time_index, world, n_rays=Const(8)):
-    """Localization model using drift-only dynamics for improved convergence.
+    """Localization model using drift-only dynamics.
 
-    This model uses simple positional drift without velocity variables,
-    which has been shown to provide better SMC convergence properties.
+    This model uses simple positional drift without velocity variables.
 
     Args:
         prev_pose: Previous robot pose (Pose object, dummy for t=0)
@@ -333,9 +332,9 @@ def localization_model(prev_pose, time_index, world, n_rays=Const(8)):
     initial_theta = 0.0
 
     # Drift parameters (no velocity, just positional drift)
-    drift_noise_x = 0.25  # Increased from 0.15
-    drift_noise_y = 0.25  # Increased from 0.15
-    drift_noise_theta = 0.1  # Increased from 0.05
+    drift_noise_x = 0.25
+    drift_noise_y = 0.25
+    drift_noise_theta = 0.1
 
     # Initial uncertainty
     initial_noise_x = 0.5
@@ -386,10 +385,10 @@ def localization_model(prev_pose, time_index, world, n_rays=Const(8)):
 @gen
 def sensor_model_single_ray(true_distance: float, ray_idx: int):
     """Generative model for a single LIDAR ray observation."""
-    # Each ray has independent Gaussian noise - reduced for better tracking
+    # Each ray has independent Gaussian noise.
     obs_dist = (
         normal(true_distance, 0.3) @ "distance"
-    )  # Reduced sensor noise for drift-only model
+    )  # Sensor noise for the drift-only model
     # Constrain to non-negative values
     obs_dist = jnp.maximum(0.0, obs_dist)
     return obs_dist
@@ -505,9 +504,9 @@ def run_particle_filter(
     particles_smc = seed(rejuvenation_smc)(
         key,
         localization_model,  # model
-        observations=obs_sequence,  # observations
-        initial_model_args=initial_args,  # initial_model_args
-        n_particles=const(n_particles),  # n_particles
+        observations=obs_sequence,
+        initial_model_args=initial_args,
+        n_particles=const(n_particles),
         return_all_particles=const(
             True
         ),  # return_all_particles=True to get all timesteps
@@ -515,7 +514,7 @@ def run_particle_filter(
 
     print("Particle filter completed successfully!")
 
-    # Extract particle history from result - now includes all timesteps!
+    # Extract the particle history for all timesteps
     all_traces = particles_smc.traces  # Shape: [T, n_particles, ...]
     all_weights = particles_smc.log_weights  # Shape: [T, n_particles]
 

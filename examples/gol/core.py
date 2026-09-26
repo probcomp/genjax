@@ -21,7 +21,7 @@ neighbors_filter = jnp.array(
 )
 
 
-@gen  #########            (3, 3)      ()
+@gen  # (3, 3) -> ()
 def get_cell_from_window(window, flip_prob):
     """
     Given a 3x3 window, generate the value taken by the
@@ -100,7 +100,7 @@ def generate_state_pair(n_y: int, n_x: int, p_flip):
     return (init, step)
 
 
-### Single Cell Gibbs Update Implementation ###
+# Single cell Gibbs update
 
 AND = jnp.logical_and
 
@@ -161,7 +161,7 @@ def gibbs_move_on_cell_fast(i, j, current_state, future_state, p_flip):
     return val
 
 
-### Full Gibbs Sweep Implementation ###
+# Full Gibbs sweep
 
 
 @gen
@@ -364,7 +364,7 @@ def run_sampler_and_get_summary(
     )(key, sampler)
 
 
-### Animation ###
+# Animation
 
 
 def _setup_samples_grid(ax, frame_data, rollout_data, title_suffix=""):
@@ -573,7 +573,6 @@ def get_gol_figure_and_updater(
         height_ratios=[0.3, 1],
         width_ratios=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     )
-    # Keep previous layout code for animations...
     ax4 = fig.add_subplot(gs_main[1, 4:7])  # 16 Previous states (3 cols)
     ax5 = fig.add_subplot(gs_main[1, 7:10])  # 16 Rollout states (3 cols)
     ax1 = fig.add_subplot(gs_main[0, 4:5])  # Score plot

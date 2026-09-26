@@ -18,7 +18,6 @@ try:
     import numpyro.distributions as numpyro_dist
     from numpyro.handlers import replay, seed as numpyro_seed
 
-    # from numpyro.contrib.funsor import log_density  # Moved to function for lazy loading
     from numpyro.infer import HMC, MCMC
 
     HAS_NUMPYRO = True
@@ -53,7 +52,7 @@ class Lambda(Pytree):
         return self.f.value(*x, *self.static_vals.value, self.dynamic_vals)
 
 
-### Model + inference code ###
+# Model and inference code
 @gen
 def point(x, curve):
     y_det = curve(x)
@@ -78,7 +77,6 @@ def polyfn(x, coeffs):
 @gen
 def polynomial():
     # Use normal distributions for polynomial coefficients
-    # Uniform priors with std=1.0 for all coefficients
     a = normal(0.0, 1.0) @ "a"  # Constant term (std=1.0)
     b = normal(0.0, 1.0) @ "b"  # Linear coefficient (std=1.0)
     c = normal(0.0, 1.0) @ "c"  # Quadratic coefficient (std=1.0)
@@ -129,7 +127,7 @@ def infer_latents(xs, ys, n_samples: Const[int]):
         npoint_curve,  # target generative function
         (xs,),  # target args with xs as input
         n_samples,  # already wrapped in Const
-        constraints,  # constraints
+        constraints,
     )
 
     # Extract traces and weights for downstream analysis
@@ -192,7 +190,7 @@ def hmc_infer_latents(
 
     # Define HMC kernel for continuous parameters
     def hmc_kernel(trace):
-        # Select the entire curve (which contains freq and off parameters)
+        # Select the entire curve (the a, b and c coefficients)
         selection = sel("curve")
         return hmc(trace, selection, step_size=step_size, n_steps=n_steps)
 
@@ -721,7 +719,6 @@ numpyro_run_importance_sampling_jit = jax.jit(
 )
 
 
-#
 def run_comprehensive_benchmark(
     n_points=20,
     n_samples=1000,
@@ -913,7 +910,6 @@ def extract_posterior_samples(benchmark_results):
                 c_samples = samples["c"][indices]
 
             elif method == "HMC":
-                # MCMC samples
                 samples = result["samples"]
                 a_samples = samples["a"]
                 b_samples = samples["b"]
@@ -959,8 +955,6 @@ def enumerative_gibbs_outliers(trace, xs, ys, outlier_rate=0.1):
         log_prob_true, _ = point_with_outliers.assess(
             chm_true, x, curve, outlier_rate, 0.0, 2.0
         )
-
-        # Convert to probabilities
 
         # Sample new outlier indicator
         new_is_outlier = (

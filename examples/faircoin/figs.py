@@ -64,7 +64,7 @@ def timing_comparison_fig(
 
     # Create horizontal bar plot with larger fonts for research paper
     plt.rcParams.update({"font.size": 20})  # Set base font size
-    fig, ax = plt.subplots(figsize=(10, 3), dpi=300)  # Reduced height for thinner bars
+    fig, ax = plt.subplots(figsize=(10, 3), dpi=300)
 
     y_pos = range(len(frameworks))
     bars = ax.barh(
@@ -75,8 +75,6 @@ def timing_comparison_fig(
     ax.set_yticks(y_pos)
     ax.set_yticklabels(frameworks, fontsize=22)
     ax.set_xlabel("Relative Performance (% of Handcoded JAX time)", fontsize=22)
-
-    # Removed 'Smaller bar is better' text
 
     # Customize tick labels
     ax.tick_params(axis="x", labelsize=20)
@@ -176,7 +174,7 @@ def posterior_comparison_fig(
     exact_pdf = stats.beta.pdf(x_range, alpha_post, beta_post)
 
     # Set up subplot grid - squeezed vertical aspect ratio
-    fig, axes = plt.subplots(2, 2, figsize=(10, 6), dpi=300)  # Further reduced height
+    fig, axes = plt.subplots(2, 2, figsize=(10, 6), dpi=300)
 
     axes = axes.flatten()
 
@@ -221,10 +219,9 @@ def posterior_comparison_fig(
         # Customize subplot
         ax.set_title(
             f"{method_name}", fontsize=20, fontweight="bold"
-        )  # Increased title font
-        ax.set_xlabel("Fairness Parameter", fontsize=18)  # Increased label font
-        # ax.set_ylabel('Posterior Density', fontsize=18)  # Removed y-axis label
-        ax.legend(fontsize=14, loc="upper left")  # Increased legend font
+        )  # Large title font
+        ax.set_xlabel("Fairness Parameter", fontsize=18)
+        ax.legend(fontsize=14, loc="upper left")
         ax.grid(False)  # Remove gridlines
 
         # Set consistent x-axis limits and custom ticks
@@ -238,22 +235,7 @@ def posterior_comparison_fig(
         sample_mean = np.average(samples, weights=weights)
         sample_std = np.sqrt(np.average((samples - sample_mean) ** 2, weights=weights))
 
-    # Remove overall title - commented out
-    # fig.suptitle(
-    #     f'Beta-Bernoulli Posterior Comparison\n'
-    #     f'({num_obs} observations, {num_samples:,} samples each)',
-    #     fontsize=18, fontweight='bold', y=0.95
-    # )
-
-    # Remove information box about the exact posterior
-    # exact_info = (f'Exact Posterior: Beta({alpha_post:.0f}, {beta_post:.0f})\n'
-    #              f'True Mean: {true_mean:.3f}, True Std: {true_std:.3f}')
-    #
-    # fig.text(0.02, 0.02, exact_info, fontsize=14,  # Increased info font
-    #         bbox=dict(boxstyle="round,pad=0.5", facecolor="lightgray", alpha=0.8))
-
     plt.tight_layout()
-    # plt.subplots_adjust(top=0.90, bottom=0.12)  # No longer need room for title
 
     # Save with parametrized filename
     filename = f"figs/faircoin_posterior_accuracy_comparison_obs{num_obs}_samples{num_samples}.pdf"
@@ -280,9 +262,9 @@ def posterior_comparison_fig(
 
 def combined_comparison_fig(
     num_obs=50,
-    num_samples=3000,  # Reduced from 10000
-    timing_repeats=50,  # Reduced from 100
-    timing_samples=500,  # Reduced from 1000
+    num_samples=3000,
+    timing_repeats=50,
+    timing_samples=500,
     num_bins=50,
     inner_repeats=20,  # Inner timing repeats
 ):
@@ -308,7 +290,7 @@ def combined_comparison_fig(
         2, 3, left=0.08, right=0.95, top=0.92, bottom=0.15, hspace=0.4, wspace=0.3
     )
 
-    ### TOP ROW: POSTERIOR COMPARISON ###
+    # Top row: posterior comparison
 
     # Collect posterior samples from all methods (skip Pyro for 3x2 layout)
     print("Generating Ours posterior samples...")
@@ -394,7 +376,7 @@ def combined_comparison_fig(
     for ax in axes_top:
         ax.set_ylim(y_min, y_max)
 
-    ### BOTTOM ROW: TIMING COMPARISON ###
+    # Bottom row: timing comparison
 
     # Span the entire bottom row for timing comparison
     ax_timing = fig.add_subplot(gs[1, :])
@@ -456,8 +438,6 @@ def combined_comparison_fig(
     # Customize the timing plot - remove y-axis labels for better centering
     ax_timing.set_yticks([])  # Remove y-axis ticks
     ax_timing.set_xlabel("Relative Performance (% of Handcoded JAX time)", fontsize=22)
-
-    # Removed 'Smaller bar is better' text
 
     # Customize tick labels
     ax_timing.tick_params(axis="x", labelsize=20)

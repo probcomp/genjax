@@ -311,8 +311,6 @@ def create_showcase_figure(
     ax_inferred = fig.add_subplot(gs[0, 1])
     ax_evolution = fig.add_subplot(gs[0, 2])
 
-    # Load data from file or run new experiment
-
     if load_from_file:
         print(f"Loading experiment data from: {load_from_file}")
         with open(load_from_file, "r") as f:
@@ -342,7 +340,7 @@ def create_showcase_figure(
         accuracy = exp_data["metadata"]["final_accuracy"]
 
     else:
-        # === LEFT PANEL: Target State ===
+        # Left panel: target state
         if pattern_type == "mit":
             target = get_small_mit_logo(size)
         elif pattern_type == "popl":
@@ -381,7 +379,7 @@ def create_showcase_figure(
         spine.set_color(get_method_color("data_points"))
         spine.set_linewidth(4)
 
-    # === MIDDLE PANEL: Inferred Past States ===
+    # Middle panel: inferred past states
 
     # Create a 2x2 grid of inferred samples over entire chain
     n_samples = 4
@@ -427,7 +425,7 @@ def create_showcase_figure(
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8),
         )
 
-        # Add green border to the final state (t=499)
+        # Add green border to the final state
         if i == n_samples - 1:  # Last sample in the 2x2 grid
             # Create a rectangle patch for the border with dashed line
             from matplotlib.patches import Rectangle
@@ -450,7 +448,7 @@ def create_showcase_figure(
     ax_inferred.axis("off")
     ax_inferred.set_aspect("equal", "box")
 
-    # === NEW PANEL: Evolution ===
+    # Evolution panel
     # The inferred_reconstructed_targets already contains the one-step evolution
     # of each inferred state. So we just need to get the final one.
     evolved_state = run_summary.inferred_reconstructed_targets[-1]
@@ -478,7 +476,7 @@ def create_showcase_figure(
         style="italic",
     )
 
-    # Print summary statistics (already calculated above)
+    # Print summary statistics
     print(f"\nFinal predictive posterior: {final_pred_post:.6f}")
     print(
         f"Final reconstruction errors: {final_n_bit_flips} bits ({accuracy:.1f}% accuracy)"
