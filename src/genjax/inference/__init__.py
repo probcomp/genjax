@@ -4,7 +4,7 @@ This module provides implementations of standard inference algorithms including
 MCMC, SMC, and variational inference methods.
 """
 
-from .mcmc import mh, mala, hmc, chain, MCMCResult
+from .mcmc import mh, mala, hmc, chain, MCMCResult, compute_rhat, compute_ess
 from .smc import (
     init,
     change,
@@ -29,6 +29,8 @@ __all__ = [
     "hmc",
     "chain",
     "MCMCResult",
+    "compute_rhat",
+    "compute_ess",
     # SMC
     "init",
     "change",

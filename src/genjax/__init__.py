@@ -87,6 +87,8 @@ from .inference import (  # noqa: E402
     chain,
     mh,
     mala,
+    compute_rhat,
+    compute_ess,
     # SMC
     ParticleCollection,
     init,
@@ -233,7 +235,6 @@ __all__ = [
     "sample_hmm_dataset",
     "DiscreteHMMTrace",
     # Linear Gaussian state space model
-    "linear_gaussian_ssm",
     "kalman_filter",
     "kalman_smoother",
     "sample_linear_gaussian_dataset",
