@@ -360,9 +360,7 @@ def sample_hmm_dataset(
     return states, observations, constraints
 
 
-# =============================================================================
-# LINEAR GAUSSIAN STATE SPACE MODEL
-# =============================================================================
+# Linear Gaussian state space model
 
 
 @Pytree.dataclass
@@ -677,9 +675,7 @@ def sample_linear_gaussian_dataset(
     return states, observations, constraints
 
 
-# =============================================================================
-# INFERENCE TESTING API
-# =============================================================================
+# Inference testing API
 
 
 def discrete_hmm_test_dataset(

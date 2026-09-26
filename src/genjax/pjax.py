@@ -114,9 +114,7 @@ import beartype.typing as btyping
 import jaxtyping as jtyping
 from numpy import dtype
 
-##########
-# Types  #
-##########
+# Types
 
 Any = btyping.Any
 Callable = btyping.Callable
@@ -131,9 +129,7 @@ Array = jtyping.Array
 R = TypeVar("R")
 VarOrLiteral = Var | Literal
 
-############################################
-# Staging utilities for Jaxpr interpreters #
-############################################
+# Staging utilities for Jaxpr interpreters
 
 
 def get_shaped_aval(x):
@@ -216,9 +212,7 @@ def stage(f, **params):
     return wrapped
 
 
-#########################
-# Custom JAX primitives #
-#########################
+# Custom JAX primitives
 
 
 class InitialStylePrimitive(Primitive):
@@ -508,9 +502,7 @@ def initial_style_bind(
     return bind
 
 
-##################################
-# PJAX Core: Probabilistic Primitives #
-##################################
+# Probabilistic primitives
 
 
 def static_dim_length(in_axes, args: tuple[Any, ...]) -> int | None:
@@ -540,9 +532,7 @@ def static_dim_length(in_axes, args: tuple[Any, ...]) -> int | None:
     return axis_sizes[0] if axis_sizes else None
 
 
-################################
-# Core PJAX Primitives          #
-################################
+# PJAX primitives
 
 
 class TerminalStyle:
@@ -752,9 +742,7 @@ global_counter = GlobalKeyCounter()
 _fake_key = jrand.key(1)
 
 
-##########################################################
-# Refactored Sample Binding: Separation of Concerns    #
-##########################################################
+# Sample binding
 
 
 @dataclass
@@ -928,9 +916,7 @@ class VmapBatchHandler:
             return ()
 
 
-##########################################################
-# Log Density Binding: Component-Based Architecture    #
-##########################################################
+# Log density binding
 
 
 @dataclass
@@ -1110,9 +1096,7 @@ def create_sample_primitive(config: SamplerConfig):
     return sample
 
 
-##########################################################
-# Sample Binding (Component-Based Implementation)       #
-##########################################################
+# Sample binding
 
 
 def sample_binder(
@@ -1208,9 +1192,7 @@ def wrap_logpdf(
     return _
 
 
-###################################
-# Jaxpr Interpretation Infrastructure #
-###################################
+# Jaxpr Interpretation Infrastructure
 
 
 @dataclass
@@ -1290,9 +1272,7 @@ class Environment:
         return Environment({k: self.env[k] for k in keys})
 
 
-####################
-# Seed Interpreter #
-####################
+# Seed Interpreter
 
 
 @dataclass
@@ -1475,9 +1455,7 @@ def seed(
     return wrapped
 
 
-############################################
-# Modular Vmap Interpreter                #
-############################################
+# Modular Vmap Interpreter
 
 
 @dataclass
@@ -1660,9 +1638,7 @@ class ModularVmap:
         )(dummy_arg, args)
 
 
-##########################################
-# Public API: Core PJAX Transformations #
-##########################################
+# Public API: Core PJAX Transformations
 
 
 def modular_vmap(
@@ -1743,9 +1719,7 @@ def modular_vmap(
     return wrapped
 
 
-####################################
-# Configuration and Error Handling  #
-####################################
+# Configuration and Error Handling
 
 # Global flags that control the behavior when PJAX primitives reach MLIR compilation
 # This happens when probabilistic functions are passed to JAX transformations

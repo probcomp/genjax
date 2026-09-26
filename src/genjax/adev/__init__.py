@@ -159,9 +159,7 @@ def _zero_tangent_like(v):
     return jax_autodiff.instantiate_zeros(_symbolic_zero_tangent(v))
 
 
-###################
-# ADEV primitives #
-###################
+# ADEV primitives
 
 
 class ADEVPrimitive(Pytree):
@@ -250,9 +248,7 @@ class ADEVPrimitive(Pytree):
         return sample_primitive(self, *args)
 
 
-####################
-# Sample intrinsic #
-####################
+# Sample intrinsic
 
 
 def sample_primitive(adev_prim: ADEVPrimitive, *args):
@@ -291,9 +287,7 @@ def sample_primitive(adev_prim: ADEVPrimitive, *args):
     )(*args)
 
 
-####################
-# ADEV interpreter #
-####################
+# ADEV interpreter
 
 
 @Pytree.dataclass
@@ -687,9 +681,7 @@ class ADEV(Pytree):
         return _dual
 
 
-#################
-# ADEV programs #
-#################
+# ADEV programs
 
 
 @Pytree.dataclass
@@ -751,9 +743,7 @@ class ADEVProgram(Pytree):
         return adev_jvp(self.source.value)(*duals)
 
 
-###############
-# Expectation #
-###############
+# Expectation
 
 
 @Pytree.dataclass
@@ -963,9 +953,7 @@ def expectation(source: Callable[..., Any]) -> Expectation:
     return Expectation(prog)
 
 
-#########################################
-# Register custom forward mode with JAX #
-#########################################
+# Forward mode registration
 
 
 # These functions register ADEV's jvp_estimate as a custom JVP rule for JAX.
@@ -1033,9 +1021,7 @@ def invoke_closed_over_jvp(primals: tuple, tangents: tuple):
 # symbolic_zeros=False ensures tangents are computed even for zero inputs
 invoke_closed_over.defjvp(invoke_closed_over_jvp, symbolic_zeros=False)
 
-################################
-# Gradient strategy primitives #
-################################
+# Gradient strategy primitives
 
 
 @Pytree.dataclass
@@ -1175,9 +1161,7 @@ def reinforce(sample_func, logpdf_func, keyful_sample_func=None):
     )
 
 
-######################################
-# Discrete gradient estimator primitives #
-######################################
+# Discrete gradient estimator primitives
 
 
 def _discrete_zero_tangent(v):
@@ -1473,9 +1457,7 @@ class CategoricalEnumParallel(ADEVPrimitive):
 
 categorical_enum_parallel = CategoricalEnumParallel()
 
-########################################
-# REINFORCE distribution estimators   #
-########################################
+# REINFORCE distribution estimators
 
 
 def _bernoulli_keyful_sample(key, probs, sample_shape=()):
@@ -1534,9 +1516,7 @@ uniform_reinforce = distribution(
 )
 
 
-########################################
-# Reparameterization estimators       #
-########################################
+# Reparameterization estimators
 
 
 @Pytree.dataclass
@@ -1829,9 +1809,7 @@ multivariate_normal_reinforce = distribution(
 )
 
 
-###########
-# Exports #
-###########
+# Exports
 
 __all__ = [
     # Core ADEV classes

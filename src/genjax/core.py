@@ -22,9 +22,7 @@ from .pjax import (
 
 tfd = tfp.distributions
 
-##########
-# Typing #
-##########
+# Typing
 
 Any = btyping.Any
 Union = btyping.Union
@@ -52,17 +50,13 @@ X = TypeVar("X")
 Rm = TypeVar("Rm")
 K = TypeVar("K")
 
-#######################
-# Probabilistic types #
-#######################
+# Probabilistic types
 
 Weight = FloatArray
 Score = FloatArray
 Density = FloatArray
 
-##########
-# Pytree #
-##########
+# Pytree
 
 
 class Pytree(pz.Struct):
@@ -531,9 +525,7 @@ def fixed(a: A) -> Fixed[A]:
     return Fixed(a)
 
 
-#######
-# GFI #
-#######
+# GFI
 
 
 class Trace(Generic[X, R], Pytree):
@@ -770,9 +762,7 @@ def get_retval(x: Trace[X, R]) -> R:
     return x.get_retval()
 
 
-##############
-# Selections #
-##############
+# Selections
 
 
 @Pytree.dataclass
@@ -1332,9 +1322,7 @@ class GFI(Generic[X, R], Pytree):
         return jnp.sum(logp) if jnp.shape(logp) else logp
 
 
-########################
-# Generative functions #
-########################
+# Generative functions
 
 
 @Pytree.dataclass
@@ -1526,9 +1514,7 @@ class Vmap(Generic[X, R], GFI[X, R]):
         return selected, unselected
 
 
-#################
-# Distributions #
-#################
+# Distributions
 
 
 @Pytree.dataclass
@@ -1760,9 +1746,7 @@ def tfp_distribution(
     )
 
 
-######
-# Fn #
-######
+# Fn
 
 
 def _get_generative_function_info(gen_fn: "GFI") -> str:
@@ -2347,9 +2331,7 @@ def gen(fn: Callable[..., R]) -> Fn[R]:
     return gf
 
 
-########
-# Scan #
-########
+# Scan
 
 
 @Pytree.dataclass
@@ -2593,9 +2575,7 @@ class Scan(Generic[X, R], GFI[X, R]):
         return new_tr, total_weight, discards if any_discards else None
 
 
-########
-# Cond #
-########
+# Cond
 
 
 @Pytree.dataclass
