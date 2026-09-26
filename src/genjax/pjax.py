@@ -737,7 +737,7 @@ global_counter = GlobalKeyCounter()
 _fake_key = jrand.key(1)
 
 
-# Sample binding
+# Sample primitive components
 
 
 @dataclass
@@ -1076,7 +1076,7 @@ def create_sample_primitive(config: SamplerConfig):
     return sample
 
 
-# Sample binding
+# Sample binder
 
 
 def sample_binder(
@@ -1172,7 +1172,7 @@ def wrap_logpdf(
     return _
 
 
-# Jaxpr Interpretation Infrastructure
+# Jaxpr interpretation infrastructure
 
 
 @dataclass
@@ -1252,7 +1252,7 @@ class Environment:
         return Environment({k: self.env[k] for k in keys})
 
 
-# Seed Interpreter
+# Seed interpreter
 
 
 @dataclass
@@ -1435,7 +1435,7 @@ def seed(
     return wrapped
 
 
-# Modular Vmap Interpreter
+# Modular vmap interpreter
 
 
 @dataclass
@@ -1618,7 +1618,7 @@ class ModularVmap:
         )(dummy_arg, args)
 
 
-# Public API: Core PJAX Transformations
+# Public API: core PJAX transformations
 
 
 def modular_vmap(
@@ -1699,7 +1699,7 @@ def modular_vmap(
     return wrapped
 
 
-# Configuration and Error Handling
+# Configuration and error handling
 
 # Global flags that control the behavior when PJAX primitives reach MLIR compilation
 # This happens when probabilistic functions are passed to JAX transformations
