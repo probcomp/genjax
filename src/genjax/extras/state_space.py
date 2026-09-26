@@ -76,7 +76,6 @@ def _discrete_hmm(
     # For t>0: sample from transition distribution
     is_initial = time_index == 0
 
-    # Sample current state
     # Select between initial and transition logits
     initial_logits = jnp.log(initial_probs)
     transition_logits = jnp.log(transition_matrix[prev_state])
@@ -86,7 +85,6 @@ def _discrete_hmm(
     # Sample observation given current state (accessible via GFI)
     categorical(jnp.log(emission_matrix[current_state])) @ "obs"
 
-    # Return new state and carry all other arguments
     return (
         current_state,
         time_index + 1,
@@ -410,7 +408,6 @@ def _linear_gaussian(
     # For t>0: sample from transition distribution
     is_initial = time_index == 0
 
-    # Sample current state
     # Select between initial and transition parameters
     transition_mean = A @ prev_state
     current_mean = jax.lax.select(is_initial, initial_mean, transition_mean)
@@ -421,7 +418,6 @@ def _linear_gaussian(
     obs_mean = C @ current_state
     multivariate_normal(obs_mean, R) @ "obs"
 
-    # Return new state and carry all other arguments
     return current_state, time_index + 1, initial_mean, initial_cov, A, Q, C, R
 
 

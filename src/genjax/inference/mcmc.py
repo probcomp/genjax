@@ -340,7 +340,6 @@ def mala(
     args = current_trace.get_args()
     current_choices = current_trace.get_choices()
 
-    # Use the new GFI.filter method to extract selected choices
     selected_choices, unselected_choices = target_gf.filter(current_choices, selection)
 
     if selected_choices is None:
@@ -468,7 +467,6 @@ def hmc(
     args = current_trace.get_args()
     current_choices = current_trace.get_choices()
 
-    # Use the new GFI.filter method to extract selected choices
     selected_choices, unselected_choices = target_gf.filter(current_choices, selection)
 
     if selected_choices is None:

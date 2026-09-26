@@ -13,7 +13,6 @@ from typing_extensions import dataclass_transform
 
 from tensorflow_probability.substrates import jax as tfp
 
-# Import PJAX functionality that was moved from this file
 from .pjax import (
     modular_vmap,
     wrap_sampler,
@@ -213,7 +212,6 @@ class Const(Generic[A], Pytree):
     value: A = Pytree.static()
 
     def __add__(self, other):
-        """Add two Const values or a Const and a regular value."""
         if isinstance(other, Const):
             return const(self.value + other.value)
         try:
@@ -224,7 +222,6 @@ class Const(Generic[A], Pytree):
             )
 
     def __radd__(self, other):
-        """Right addition for when Const is on the right side."""
         try:
             return const(other + self.value)
         except TypeError:
@@ -233,7 +230,6 @@ class Const(Generic[A], Pytree):
             )
 
     def __sub__(self, other):
-        """Subtract two Const values or a Const and a regular value."""
         if isinstance(other, Const):
             return const(self.value - other.value)
         try:
@@ -244,7 +240,6 @@ class Const(Generic[A], Pytree):
             )
 
     def __rsub__(self, other):
-        """Right subtraction for when Const is on the right side."""
         try:
             return const(other - self.value)
         except TypeError:
@@ -253,7 +248,6 @@ class Const(Generic[A], Pytree):
             )
 
     def __mul__(self, other):
-        """Multiply two Const values or a Const and a regular value."""
         if isinstance(other, Const):
             return const(self.value * other.value)
         try:
@@ -264,7 +258,6 @@ class Const(Generic[A], Pytree):
             )
 
     def __rmul__(self, other):
-        """Right multiplication for when Const is on the right side."""
         try:
             return const(other * self.value)
         except TypeError:
@@ -273,7 +266,6 @@ class Const(Generic[A], Pytree):
             )
 
     def __truediv__(self, other):
-        """Divide two Const values or a Const and a regular value."""
         if isinstance(other, Const):
             return const(self.value / other.value)
         try:
@@ -284,7 +276,6 @@ class Const(Generic[A], Pytree):
             )
 
     def __rtruediv__(self, other):
-        """Right division for when Const is on the right side."""
         try:
             return const(other / self.value)
         except TypeError:
@@ -293,7 +284,6 @@ class Const(Generic[A], Pytree):
             )
 
     def __floordiv__(self, other):
-        """Floor divide two Const values or a Const and a regular value."""
         if isinstance(other, Const):
             return const(self.value // other.value)
         try:
@@ -304,7 +294,6 @@ class Const(Generic[A], Pytree):
             )
 
     def __rfloordiv__(self, other):
-        """Right floor division for when Const is on the right side."""
         try:
             return const(other // self.value)
         except TypeError:
@@ -313,7 +302,6 @@ class Const(Generic[A], Pytree):
             )
 
     def __mod__(self, other):
-        """Modulo two Const values or a Const and a regular value."""
         if isinstance(other, Const):
             return const(self.value % other.value)
         try:
@@ -324,7 +312,6 @@ class Const(Generic[A], Pytree):
             )
 
     def __rmod__(self, other):
-        """Right modulo for when Const is on the right side."""
         try:
             return const(other % self.value)
         except TypeError:
@@ -333,7 +320,6 @@ class Const(Generic[A], Pytree):
             )
 
     def __pow__(self, other):
-        """Power of two Const values or a Const and a regular value."""
         if isinstance(other, Const):
             return const(self.value**other.value)
         try:
@@ -344,7 +330,6 @@ class Const(Generic[A], Pytree):
             )
 
     def __rpow__(self, other):
-        """Right power for when Const is on the right side."""
         try:
             return const(other**self.value)
         except TypeError:
@@ -353,21 +338,18 @@ class Const(Generic[A], Pytree):
             )
 
     def __neg__(self):
-        """Unary negation."""
         try:
             return const(-self.value)
         except TypeError:
             raise TypeError(f"Cannot negate {type(self.value).__name__}")
 
     def __pos__(self):
-        """Unary positive."""
         try:
             return const(+self.value)
         except TypeError:
             raise TypeError(f"Cannot apply unary + to {type(self.value).__name__}")
 
     def __abs__(self):
-        """Absolute value."""
         try:
             return const(abs(self.value))
         except TypeError:
@@ -377,35 +359,29 @@ class Const(Generic[A], Pytree):
 
     # Comparison operations
     def __eq__(self, other):
-        """Equality comparison."""
         if isinstance(other, Const):
             return self.value == other.value
         return self.value == other
 
     def __ne__(self, other):
-        """Inequality comparison."""
         return not self.__eq__(other)
 
     def __lt__(self, other):
-        """Less than comparison."""
         if isinstance(other, Const):
             return self.value < other.value
         return self.value < other
 
     def __le__(self, other):
-        """Less than or equal comparison."""
         if isinstance(other, Const):
             return self.value <= other.value
         return self.value <= other
 
     def __gt__(self, other):
-        """Greater than comparison."""
         if isinstance(other, Const):
             return self.value > other.value
         return self.value > other
 
     def __ge__(self, other):
-        """Greater than or equal comparison."""
         if isinstance(other, Const):
             return self.value >= other.value
         return self.value >= other
@@ -571,10 +547,8 @@ class Trace(Generic[X, R], Pytree):
                               The exception includes a detailed choice map showing
                               which values are fixed vs. unfixed.
         """
-        # Get choices preserving Fixed wrappers
         choice_values = get_fixed_choices(self)
 
-        # Check if value is Fixed
         def check_instance_fixed(x):
             return isinstance(x, Fixed)
 
@@ -583,11 +557,10 @@ class Trace(Generic[X, R], Pytree):
             choice_values, is_leaf=check_instance_fixed
         )
 
-        # Check if all leaves are Fixed
         all_fixed = all(isinstance(leaf, Fixed) for leaf in leaf_values)
 
         if not all_fixed:
-            # Create a boolean choice map showing which values are fixed
+
             def make_bool_status(x):
                 if isinstance(x, Fixed):
                     return True
@@ -1104,7 +1077,7 @@ class GFI(Generic[X, R], Pytree):
         - Computes importance weight: log [P(all_choices; args) / Q(unconstrained_choices; constrained_choices, args)]
         - When x=None, equivalent to simulate() but returns weight=0
 
-        The weight enables importance sampling and is crucial for inference algorithms.
+        The weight enables importance sampling in inference algorithms.
         For fully constrained generation, the weight equals the log density.
 
         Args:
@@ -1913,7 +1886,6 @@ class Simulate:
     ) -> R:
         kwargs = kwargs or {}
 
-        # Check for address collision
         _check_address_collision(addr, self.trace_map, self.parent_fn or gen_fn)
 
         tr = gen_fn.simulate(*args, **kwargs)
@@ -1939,7 +1911,6 @@ class Generate:
     ) -> R:
         kwargs = kwargs or {}
 
-        # Check for address collision
         _check_address_collision(addr, self.trace_map, self.parent_fn or gen_fn)
 
         x = (
@@ -1972,7 +1943,6 @@ class Assess:
     ) -> R:
         kwargs = kwargs or {}
 
-        # Check for address collision
         _check_address_collision_visited(
             addr, self.visited_addresses, self.parent_fn or gen_fn
         )
@@ -2003,7 +1973,6 @@ class Update(Generic[R]):
     ) -> R:
         kwargs = kwargs or {}
 
-        # Check for address collision
         _check_address_collision(addr, self.trace_map, self.parent_fn or gen_fn)
 
         # Get the full subtrace (Tr object) from the trace structure
@@ -2043,7 +2012,6 @@ class Regenerate(Generic[R]):
     ) -> R:
         kwargs = kwargs or {}
 
-        # Check for address collision
         _check_address_collision(addr, self.trace_map, self.parent_fn or gen_fn)
 
         # Get the full subtrace (Tr object) from the trace structure
@@ -2590,7 +2558,6 @@ class CondTr(Generic[X, R], Trace[X, R]):
     def get_choices(self) -> X:
         chm, chm_ = map(get_choices, self.trs)
 
-        # Use merge with check parameter for conditional selection
         merged, _ = self.gen_fn.merge(chm, chm_, self.check)
         return merged
 
@@ -2598,7 +2565,6 @@ class CondTr(Generic[X, R], Trace[X, R]):
         """Get choices preserving Fixed wrappers."""
         chm, chm_ = map(lambda tr: tr.get_fixed_choices(), self.trs)
 
-        # Use merge with check parameter for conditional selection
         merged, _ = self.gen_fn.merge(chm, chm_, self.check)
         return merged
 

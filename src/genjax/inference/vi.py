@@ -35,15 +35,12 @@ class VariationalApproximation(Pytree):
     n_iterations: Const[int]
 
     def get_final_params(self) -> jnp.ndarray:
-        """Get the final optimized parameters."""
         return self.final_params
 
     def get_loss_history(self) -> jnp.ndarray:
-        """Get the history of loss values during optimization."""
         return self.loss_history
 
     def get_param_history(self) -> jnp.ndarray:
-        """Get the history of parameter values during optimization."""
         return self.param_history
 
 
@@ -266,7 +263,6 @@ def elbo_vi(
     # Create ELBO objective with constraints bound
     elbo_fn = elbo_factory(target_gf, variational_family, constraint, target_args)
 
-    # Optimize
     return optimize_vi(
         elbo_fn=elbo_fn,
         init_params=init_params,

@@ -328,7 +328,6 @@ def init(
 
             Proposal uses signature (constraints, *target_args).
             """
-            # Sample from proposal using new signature
             proposal_trace = proposal_gf.simulate(constraints, *target_args)
             proposal_choices = proposal_trace.get_choices()
 
@@ -392,7 +391,7 @@ def change(
         choice_fn: Bijective function mapping choices X -> X
 
     Choice Function Specification:
-        CRITICAL: choice_fn must be a bijection on address space only.
+        choice_fn must be a bijection on address space only.
 
         - If X is a scalar type (e.g., float): Must be identity function
         - If X is dict[str, Any]: May remap keys but CANNOT modify values
@@ -573,7 +572,6 @@ def rejuvenate(
     def _single_rejuvenate(
         old_trace: Trace[X, R], old_log_weight: jnp.ndarray
     ) -> tuple[Trace[X, R], jnp.ndarray]:
-        # Apply MCMC kernel
         new_trace = mcmc_kernel(old_trace)
 
         # Weights remain unchanged for MCMC moves (detailed balance)
@@ -909,7 +907,6 @@ def extend_csmc(
                 extension_choices = extension_trace.get_choices()
                 proposal_score = extension_trace.get_score()
 
-                # Merge and generate
                 merged_choices, _ = extended_target_gf.merge(
                     constraints, extension_choices
                 )

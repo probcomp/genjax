@@ -1,22 +1,17 @@
 """
 JAX interpreter for inspecting and organizing tagged state inside JAX Python functions.
 
-This module provides a State interpreter that can collect and hierarchically organize
-tagged values from within JAX computations using JAX primitives. The interpreter
-works seamlessly with all JAX transformations while providing powerful state
-organization capabilities.
+The state interpreter collects tagged values from JAX computations and organizes
+them by namespace. It supports jit, vmap, grad, and scan transformations.
 
-Core Features:
-============
+Core features:
 
 **State Collection**: Tag intermediate values during computation for inspection
 **Hierarchical Organization**: Use namespaces to create nested state structures
-**JAX Integration**: Full compatibility with jit, vmap, grad, scan, and other JAX transforms
+**JAX Integration**: Supports jit, vmap, grad, and scan transformations
 **Error Safety**: Automatic cleanup of namespace stack on exceptions
-**Zero Overhead**: No performance cost when not using the @state decorator
 
 Primary API:
-===========
 
 Basic State Collection:
 - `state(f)`: Transform function to collect tagged state values
@@ -28,12 +23,10 @@ Hierarchical Organization:
 - Supports arbitrary nesting: `namespace(namespace(fn, "inner"), "outer")`
 
 Lower-level API:
-===============
 
 - `tag_state(*values, name="...")`: Tag individual values for collection
 
-Usage Examples:
-==============
+Usage examples:
 
 Basic state collection:
 ```python
@@ -109,17 +102,15 @@ vmapped_fn = jax.vmap(computation)
 grad_fn = jax.grad(lambda x: computation(x)[0])
 ```
 
-Implementation Details:
-======================
+Implementation details:
 
 The state interpreter uses JAX primitives (`state_p`, `namespace_push_p`,
-`namespace_pop_p`) to integrate with JAX's transformation system. This ensures
-proper behavior under jit, vmap, grad, and other JAX transforms.
+`namespace_pop_p`) to integrate with JAX's transformation system. These
+primitives preserve tagged state under jit, vmap, and grad.
 
 The namespace functionality is implemented using a stack-based approach where
-namespace push/pop operations are tracked via JAX primitives, allowing the
-interpreter to maintain correct hierarchical structure even under complex
-JAX transformations.
+namespace push/pop operations are tracked via JAX primitives, so the
+interpreter maintains nested state across JAX transformations.
 """
 
 from dataclasses import dataclass, field
@@ -294,13 +285,11 @@ class State:
                 def new_body(carry, scanned_in):
                     in_carry = carry
                     all_values = const_vals + jtu.tree_leaves((in_carry, scanned_in))
-                    # Apply state transformation to the body
                     body_result, body_state = state(body_fun)(*all_values)
                     # Split the body result back into carry and scan parts
                     out_carry, out_scan = split_list(
                         jtu.tree_leaves(body_result), [num_carry]
                     )
-                    # Return carry, scan output, and collected state
                     return out_carry, (out_scan, body_state)
 
                 flat_carry_out, (scanned_out, scan_states) = scan(
@@ -311,7 +300,6 @@ class State:
                     reverse=reverse,
                 )
 
-                # Merge vectorized scan states into collected state
                 # scan_states is already vectorized by scan - just merge it
                 for name, vectorized_values in scan_states.items():
                     self.collected_state[name] = vectorized_values

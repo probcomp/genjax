@@ -258,9 +258,8 @@ def sample_primitive(adev_prim: ADEVPrimitive, *args):
     probabilistic programming system. It ensures the primitive works correctly
     with JAX transformations (jit, vmap, grad) and addressing (@) operators.
 
-    The key insight is that ADEV primitives need to be integrated with PJAX's
-    sample_binder to get proper parameter setup (like flat_keyful_sampler) that
-    enables compatibility with the seed transformation and other GenJAX features.
+    ADEV primitives use PJAX's sample_binder for parameter setup, including
+    flat_keyful_sampler, which supports the seed transformation.
 
     Args:
         adev_prim: The ADEV primitive to integrate
@@ -269,10 +268,6 @@ def sample_primitive(adev_prim: ADEVPrimitive, *args):
     Returns:
         Sample from the primitive, properly integrated with PJAX infrastructure
 
-    Note:
-        This function was crucial for fixing the flat_keyful_sampler error -
-        previously ADEV primitives bypassed sample_binder and lacked proper
-        parameter setup for JAX transformations.
     """
 
     def _adev_prim_call(key, *args, sample_shape=(), **kwargs):
@@ -441,13 +436,12 @@ class ADEV(Pytree):
     3. Create continuation closures for gradient estimation strategies
     4. Handle control flow (conditionals, loops) within the AD system
 
-    The CPS transformation is crucial: when encountering a stochastic operation,
-    the interpreter creates two continuations representing the rest of the computation:
+    At each stochastic operation, the interpreter creates two continuations
+    representing the rest of the computation:
     - Pure continuation: For sampling-based gradient estimates
     - Dual continuation: For the ADEV-transformed remainder
 
-    This allows each ADEVPrimitive to choose its optimal gradient strategy while
-    maintaining composability across the entire computation graph.
+    Each ADEVPrimitive selects a gradient strategy for its continuation.
     """
 
     @staticmethod
@@ -813,7 +807,7 @@ class Expectation(Pytree):
         """Compute unbiased gradient estimate of the expectation.
 
         This method provides the primary interface for computing gradients of
-        expectation values. It leverages JAX's grad transformation combined with
+        expectation values. It combines JAX's grad transformation with
         ADEV's custom JVP rules to produce unbiased gradient estimates.
 
         Args:
@@ -1184,7 +1178,7 @@ def _flip_lane_rb_estimate(kpure, kdual, p_primal, p_tangent):
 
     This avoids exponential enumeration over all lane combinations.
 
-    Important: all continuation evaluations use the same dual continuation
+    All continuation evaluations use the same dual continuation
     semantics to avoid bias from mixing pure-vs-dual downstream estimators.
     """
     del kpure  # Kept for signature symmetry.
@@ -1723,14 +1717,11 @@ class MultivariateNormalREPARAM(ADEVPrimitive):
         ∇_{μ,Σ} E[f(X)] = E[∇_{μ,Σ} f(μ + L @ ε)]
 
     ADEV Implementation:
-    This primitive enables efficient gradient flow with respect to both the mean
-    vector μ and covariance matrix Σ, crucial for scalable variational inference
-    in high-dimensional spaces. The Cholesky decomposition ensures positive
-    definiteness while enabling automatic differentiation through the covariance
-    structure.
+    This primitive differentiates with respect to the mean vector μ and covariance
+    matrix Σ through the Cholesky factor of a positive definite covariance matrix.
 
     This implementation follows the ADEV paper's approach to modular gradient
-    estimation, allowing seamless integration with other stochastic primitives
+    estimation alongside other stochastic primitives
     in complex probabilistic programs.
     """
 

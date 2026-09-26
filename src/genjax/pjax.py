@@ -612,12 +612,11 @@ class LoweringSamplePrimitiveToMLIRException(Exception):
         self.lowering_msg = lowering_msg
         self.binding_context = binding_context or {}
 
-        # Create a comprehensive error message
         full_message = self._format_full_message()
         super().__init__(full_message)
 
     def _format_full_message(self) -> str:
-        """Format a comprehensive error message with context."""
+        """Format the lowering error with sampler and call stack context."""
         lines = [
             "PJAX Sample Primitive Lowering Error",
             "=" * 40,
@@ -634,16 +633,13 @@ class LoweringSamplePrimitiveToMLIRException(Exception):
                 ]
             )
 
-            # Add sampler information
             if "sampler_name" in self.binding_context:
                 lines.append(f"Sampler Name: {self.binding_context['sampler_name']}")
 
-            # Add binding location if available
             if "binding_location" in self.binding_context:
                 location = self.binding_context["binding_location"]
                 lines.append(f"Binding Location: {location}")
 
-            # Add call stack context
             if "call_stack" in self.binding_context:
                 lines.append("")
                 lines.append("Call Stack (most recent first):")
@@ -686,7 +682,6 @@ def _capture_binding_context(sampler_name: str | None = None) -> dict:
     Returns:
         Dictionary containing execution context information
     """
-    # Get the current call stack
     stack = traceback.extract_stack()
 
     # Filter out internal PJAX frames to focus on user code
@@ -893,12 +888,10 @@ class VmapBatchHandler:
         vector_args = tuple(vector_args[1:])
         batch_axes = tuple(batch_axes[1:])
 
-        # Compute new sample shape
         n = static_dim_length(batch_axes, vector_args)
         outer_batch_dim = self._compute_outer_batch_dim(n, axis_size)
         new_sample_shape = outer_batch_dim + self.config.sample_shape
 
-        # Create new sampler with updated sample shape
         new_config = self.config.with_sample_shape(new_sample_shape)
         result = create_sample_primitive(new_config)(*vector_args)
 
@@ -1004,11 +997,9 @@ def create_log_density_primitive(config: LogDensityConfig):
 
     This is the main entry point that orchestrates all the log density components.
     """
-    # Create the vmap batch handler
     batch_handler = LogDensityVmapHandler(config)
 
     def log_density(*args, **kwargs):
-        # Create batch rule
         batch_rule = batch_handler.create_batch_rule()
 
         return initial_style_bind(log_density_p, batch=batch_rule)(
@@ -1045,28 +1036,18 @@ def log_density_binder(
 
 
 def create_sample_primitive(config: SamplerConfig):
-    """Create a sample primitive from a sampler configuration.
-
-    This is the main entry point that orchestrates all the components.
-    Replaces the current sample_binder function with clearer separation of concerns.
-    """
-    # Create the keyless wrapper for user convenience
+    """Create a sample primitive with flat sampling and batch handlers."""
     keyless_sampler = KeylessWrapper(config)
 
-    # Create the flat sampler cache for JAX interpretation
     flat_cache = FlatSamplerCache(config)
 
-    # Create the vmap batch handler
     batch_handler = VmapBatchHandler(config)
 
     def sample(*args, **kwargs):
-        # Get flat sampler for these arguments
         flat_keyful_sampler = flat_cache.get_flat_sampler(*args, **kwargs)
 
-        # Create batch rule
         batch_rule = batch_handler.create_batch_rule()
 
-        # Create lowering warning/exception
         lowering_msg = (
             "JAX is attempting to lower the `pjax.sample_p` primitive to MLIR. "
             "This will bake a PRNG key into the MLIR code, resulting in deterministic behavior. "
@@ -1080,7 +1061,6 @@ def create_sample_primitive(config: SamplerConfig):
             lowering_msg, binding_context
         )
 
-        # Bind to the primitive
         return initial_style_bind(
             config.primitive,
             keyful_sampler=config.keyful_sampler,
