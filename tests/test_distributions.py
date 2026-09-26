@@ -28,7 +28,6 @@ from genjax.distributions import (
     multivariate_normal,
     dirichlet,
     geometric,
-    # New high-priority distributions
     binomial,
     gamma,
     log_normal,
@@ -47,9 +46,7 @@ from genjax.distributions import (
 tfd = tfp.distributions
 
 
-# =============================================================================
-# TEST FIXTURES AND HELPERS
-# =============================================================================
+# Test fixtures and helpers
 
 
 @pytest.fixture
@@ -115,9 +112,7 @@ def assert_distribution_consistency(
         )
 
 
-# =============================================================================
-# DISCRETE DISTRIBUTIONS TESTS
-# =============================================================================
+# Discrete distribution tests
 
 
 @pytest.mark.distributions
@@ -308,9 +303,7 @@ def test_zipf_consistency(key, standard_tolerance):
     )
 
 
-# =============================================================================
-# CONTINUOUS DISTRIBUTIONS TESTS
-# =============================================================================
+# Continuous distribution tests
 
 
 @pytest.mark.distributions
@@ -547,9 +540,7 @@ def test_chi2_consistency(key, standard_tolerance):
     )
 
 
-# =============================================================================
-# MULTIVARIATE DISTRIBUTIONS TESTS
-# =============================================================================
+# Multivariate distribution tests
 
 
 @pytest.mark.distributions
@@ -589,9 +580,7 @@ def test_dirichlet_consistency(key, standard_tolerance):
     )
 
 
-# =============================================================================
-# INTEGRATION WITH GENERATIVE FUNCTIONS TESTS
-# =============================================================================
+# Integration with generative functions
 
 
 @pytest.mark.distributions
@@ -628,9 +617,7 @@ def test_distributions_in_generative_functions(key, standard_tolerance):
     assert "beta" in choices
 
 
-# =============================================================================
-# PARAMETER VALIDATION TESTS
-# =============================================================================
+# Parameter validation tests
 
 
 @pytest.mark.distributions
@@ -639,8 +626,7 @@ def test_distributions_in_generative_functions(key, standard_tolerance):
 def test_parameter_validation():
     """Test that invalid parameters raise appropriate errors."""
 
-    # Note: TFP may not validate parameters immediately during construction
-    # so this test may need to be adjusted or removed
+    # TFP may not validate parameters during construction.
     try:
         # Negative scale should fail
         normal.simulate(0.0, -1.0)
@@ -660,9 +646,7 @@ def test_parameter_validation():
         pass  # Expected behavior
 
 
-# =============================================================================
-# PERFORMANCE AND COMPILATION TESTS
-# =============================================================================
+# Performance and compilation tests
 
 
 @pytest.mark.distributions

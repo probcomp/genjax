@@ -1,9 +1,8 @@
 """
 Test Vmap integration with rejuvenation_smc.
 
-This test isolates the issue where Vmap combinators fail when used inside
-model functions called by rejuvenation_smc, due to argument count mismatches
-during generate vs regenerate phases.
+These tests cover Vmap combinators inside models that rejuvenation_smc runs.
+The generate and regenerate phases must agree on the Vmap argument count.
 """
 
 import jax.numpy as jnp
@@ -30,7 +29,7 @@ def model_with_vmap(prev_state):
     true_distances = jnp.array([1.0, 2.0, 3.0])  # 3 rays
     ray_indices = jnp.arange(3)
 
-    # This is where the issue occurs
+    # The argument count of this Vmap must match across generate and regenerate.
     vectorized_sensor = Vmap(
         simple_sensor_ray,
         in_axes=Const((0, 0)),  # distance=0, ray_idx=0
@@ -54,8 +53,7 @@ def simple_proposal(constraints, old_choices, prev_state):
 def test_vmap_with_rejuvenation_smc_basic():
     """Test that Vmap works with rejuvenation_smc - basic case.
 
-    This test verifies that the Vmap issue has been fixed and Vmap now works
-    correctly with rejuvenation_smc during MCMC regeneration.
+    It checks that Vmap works with rejuvenation_smc during MCMC regeneration.
     """
     key = jrand.key(42)
 
@@ -79,7 +77,6 @@ def test_vmap_with_rejuvenation_smc_basic():
     def mcmc_kernel(trace):
         return mh(trace, sel("state"))
 
-    # This should now work with the Vmap fix
     result = seed(rejuvenation_smc)(
         key,
         model_with_vmap,
@@ -134,7 +131,6 @@ def test_rejuvenation_smc_without_vmap():
     def mcmc_kernel(trace):
         return mh(trace, sel("state"))
 
-    # This should work fine
     result = seed(rejuvenation_smc)(
         key,
         model_without_vmap,
@@ -280,10 +276,10 @@ def localization_proposal(constraints, old_choices, prev_pose, world_size):
 
 
 def test_localization_vmap_issue():
-    """Test the specific Vmap issue from localization case study.
+    """Test the Vmap pattern from the localization case study.
 
-    This verifies that the LIDAR sensor observations using Vmap now work
-    correctly with rejuvenation_smc after the fix.
+    It checks that LIDAR sensor observations through Vmap work with
+    rejuvenation_smc.
     """
     key = jrand.key(42)
     world_size = 10.0
@@ -305,7 +301,6 @@ def test_localization_vmap_issue():
     def mcmc_kernel(trace):
         return mh(trace, sel("x") | sel("y"))
 
-    # This should now work with the Vmap fix
     result = seed(rejuvenation_smc)(
         key,
         localization_like_model,
@@ -330,7 +325,6 @@ def test_localization_vmap_issue():
 
 
 if __name__ == "__main__":
-    # Run debug test to understand the issue
     test_debug_vmap_arguments()
 
     # Run the specific tests

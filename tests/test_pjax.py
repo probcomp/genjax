@@ -18,9 +18,7 @@ from genjax.pjax import seed, modular_vmap
 from genjax.distributions import normal, exponential
 
 
-# =============================================================================
-# SEED TRANSFORMATION TESTS
-# =============================================================================
+# Seed transformation tests
 
 
 @pytest.mark.pjax
@@ -53,7 +51,6 @@ def test_seed_transform_scan_simulate(base_key, standard_tolerance, helpers):
     choices = trace.get_choices()
     scan_score = trace.get_score()
 
-    # Validate trace structure
     helpers.assert_valid_trace(trace)
 
     # Verify the transformation worked correctly
@@ -104,7 +101,6 @@ def test_seed_transform_simulate_assess_consistency(
     simulate_score = trace.get_score()
     simulate_retval = trace.get_retval()
 
-    # Validate trace structure
     helpers.assert_valid_trace(trace)
 
     # Assess the same choices (without seed transformation for assess)
@@ -173,7 +169,6 @@ def test_seed_transform_different_lengths(
     trace = seed(scan_model.simulate)(test_key, *args)
     choices = trace.get_choices()
 
-    # Validate trace structure
     helpers.assert_valid_trace(trace)
 
     assess_density, assess_retval = scan_model.assess(choices, *args)
@@ -240,7 +235,6 @@ def test_seed_transform_nested_models(base_key, standard_tolerance, helpers):
     trace = seed(outer_model.simulate)(base_key)
     choices = trace.get_choices()
 
-    # Validate trace structure
     helpers.assert_valid_trace(trace)
 
     # Test consistency with assess
@@ -261,9 +255,7 @@ def test_seed_transform_nested_models(base_key, standard_tolerance, helpers):
     )
 
 
-# =============================================================================
-# MODULAR VMAP TESTS
-# =============================================================================
+# Modular vmap tests
 
 
 @pytest.mark.pjax
@@ -368,9 +360,7 @@ def test_modular_vmap_vs_manual_vectorization(standard_tolerance):
     assert jnp.isfinite(vmap_trace.get_retval()).all()
 
 
-# =============================================================================
-# PJAX PRIMITIVE INTEGRATION TESTS
-# =============================================================================
+# PJAX primitive integration tests
 
 
 @pytest.mark.pjax
@@ -440,9 +430,7 @@ def test_pjax_error_without_seed_transformation():
     # since the exact error conditions depend on JAX internals
 
 
-# =============================================================================
-# INTEGRATION WITH COMBINATORS
-# =============================================================================
+# Integration with combinators
 
 
 @pytest.mark.pjax

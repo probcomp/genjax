@@ -31,7 +31,6 @@ def jit_compiler(jit_cache):
         else:
             jitted = jax.jit(fn)
 
-        # Cache it
         jit_cache[name] = jitted
 
         return jitted

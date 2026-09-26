@@ -276,7 +276,7 @@ class TestVectorizationPerformance:
 # Test fixtures for common benchmark patterns
 @pytest.fixture
 def benchmark_model_suite():
-    """Collection of models for comprehensive benchmarking."""
+    """Simple, medium and complex models for the benchmarks."""
     models = {}
 
     @gen
@@ -317,7 +317,7 @@ def benchmark_model_suite():
 
 
 class TestComprehensiveBenchmarks:
-    """Comprehensive benchmarks across model complexity."""
+    """Benchmarks across model complexity."""
 
     @pytest.mark.benchmark
     @pytest.mark.parametrize("model_name", ["simple", "medium", "complex"])

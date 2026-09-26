@@ -454,9 +454,7 @@ class TestLinearGaussianSSMAgainstTFP:
         ), "Cannot reproduce exact log marginal from dataset"
 
 
-# =============================================================================
-# FIXTURES
-# =============================================================================
+# Fixtures
 
 
 @pytest.fixture

@@ -1,7 +1,7 @@
-"""Test for vmap generate bug in GenJAX core.
+"""Regression tests for Vmap.generate.
 
-This test demonstrates and verifies the fix for the bug in Vmap.generate
-where in_axes specification doesn't account for the constraints argument.
+Vmap.generate must account for the constraints argument in its in_axes
+specification.
 """
 
 import jax.numpy as jnp
@@ -24,7 +24,7 @@ def three_param_fn(a: float, b: float, c: float) -> float:
 
 
 class TestVmapGenerate:
-    """Test vmap generate method bug and fix."""
+    """Test Vmap methods with constraints and multiple parameters."""
 
     def test_vmap_simulate_works(self):
         """Verify that vmap simulate works (baseline)."""
@@ -44,7 +44,6 @@ class TestVmapGenerate:
         y_value = 0.5
         constraints = {"sample": jnp.array([1.5, 2.5, 3.5])}
 
-        # This should work after the bug fix
         trace, weight = vmapped_fn.generate(constraints, x_values, y_value)
         assert isinstance(weight, (float, jnp.ndarray))  # JAX returns arrays
         assert trace.get_retval().shape == (3,)
@@ -58,7 +57,6 @@ class TestVmapGenerate:
         c_value = 0.1
         constraints = {"output": jnp.array([1.0, 2.0])}
 
-        # This should work after the bug fix
         trace, weight = vmapped_fn.generate(constraints, a_values, b_values, c_value)
         assert isinstance(weight, (float, jnp.ndarray))  # JAX returns arrays
         assert trace.get_retval().shape == (2,)
@@ -97,7 +95,7 @@ class TestVmapGenerate:
 
 
 if __name__ == "__main__":
-    # Run a quick test to verify the bug still exists before fix
+    # Report whether Vmap.generate accepts the constraints argument.
     print("Testing vmap generate bug...")
 
     vmapped_fn = two_param_fn.vmap(in_axes=(0, None))

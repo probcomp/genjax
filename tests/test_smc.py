@@ -25,7 +25,7 @@ from genjax.extras.state_space import (
     discrete_hmm,
     forward_filter,
     sample_hmm_dataset,
-    # Linear Gaussian model imports for new tests
+    # Linear Gaussian state space model
     linear_gaussian_inference_problem,
     linear_gaussian,
     kalman_filter,
@@ -120,7 +120,7 @@ def hmm_proposal(
 ):
     """
     HMM proposal for discrete_hmm that samples state uniformly.
-    Uses new signature: (constraints, *target_args).
+    Takes (constraints, *target_args).
 
     Args:
         constraints: Dictionary of constrained choices (not used in this proposal)
@@ -164,7 +164,7 @@ class TestImportanceSampling:
         estimated_log_marginal = result.log_marginal_likelihood()
 
         # Check that estimate is close to exact value with realistic tolerance
-        tolerance = 8e-3  # Realistic tolerance for Monte Carlo error with large sample size (was 5e-3, but Monte Carlo noise requires higher tolerance)
+        tolerance = 8e-3  # Covers the Monte Carlo error at this sample size
         assert jnp.abs(estimated_log_marginal - exact_log_marginal) < tolerance
 
         # Check that effective sample size is reasonable
@@ -221,7 +221,7 @@ class TestImportanceSampling:
         key1, key2 = jrand.split(key)
         initial_probs, transition_matrix, emission_matrix = create_simple_hmm_params()
         T = 5
-        n_samples = 1000  # Reduced for memory constraints
+        n_samples = 1000  # Bounded by memory
 
         # Create closure for sample_hmm_dataset that captures T as static
         def sample_hmm_dataset_closure(
@@ -287,7 +287,7 @@ class TestImportanceSampling:
 
         # Check that estimate is close to exact value
         # Note: Using fewer samples so increase tolerance appropriately
-        tolerance = 0.1  # Increased tolerance for smaller sample size
+        tolerance = 0.1  # Looser tolerance for the smaller sample size
         assert jnp.abs(estimated_log_marginal - exact_log_marginal) < tolerance
 
         # Check that effective sample size is reasonable
@@ -299,7 +299,7 @@ class TestImportanceSampling:
         key1, key2 = jrand.split(key)
         initial_probs, transition_matrix, emission_matrix = create_simple_hmm_params()
         T = 5
-        n_samples = 1000  # Reduced for memory constraints
+        n_samples = 1000  # Bounded by memory
 
         # Create closure for sample_hmm_dataset that captures T as static
         def sample_hmm_dataset_closure(
@@ -365,7 +365,7 @@ class TestImportanceSampling:
 
         # Check that estimate is close to exact value
         # Note: Using fewer samples so increase tolerance appropriately
-        tolerance = 0.1  # Increased tolerance for smaller sample size
+        tolerance = 0.1  # Looser tolerance for the smaller sample size
         assert jnp.abs(estimated_log_marginal - exact_log_marginal) < tolerance
 
         # Check that effective sample size is reasonable
@@ -377,7 +377,7 @@ class TestImportanceSampling:
         key1, key2 = jrand.split(key)
         initial_probs, transition_matrix, emission_matrix = create_complex_hmm_params()
         T = 8
-        n_samples = 1000  # Reduced for memory constraints
+        n_samples = 1000  # Bounded by memory
 
         # Create closure for sample_hmm_dataset that captures T as static
         def sample_hmm_dataset_closure(
@@ -443,7 +443,7 @@ class TestImportanceSampling:
 
         # Check accuracy
         # Note: Using fewer samples so increase tolerance appropriately
-        tolerance = 0.3  # Adjusted tolerance for complex HMM with reduced samples
+        tolerance = 0.3  # Looser tolerance for the complex HMM at this sample size
         assert jnp.abs(estimated_log_marginal - exact_log_marginal) < tolerance
 
     def test_marginal_likelihood_convergence(self):
@@ -503,7 +503,7 @@ class TestImportanceSampling:
         )
 
         # Test with increasing sample sizes
-        sample_sizes = [100, 300, 500, 800]  # Reduced for memory constraints
+        sample_sizes = [100, 300, 500, 800]  # Bounded by memory
         errors = []
 
         for i, n_samples in enumerate(sample_sizes):
@@ -624,7 +624,7 @@ class TestRobustness:
         key1, key2 = jrand.split(key)
         initial_probs, transition_matrix, emission_matrix = create_simple_hmm_params()
         T = 2  # Very short sequence
-        n_samples = 1000  # Reduced for memory constraints
+        n_samples = 1000  # Bounded by memory
 
         # Create closure for sample_hmm_dataset that captures T as static
         def sample_hmm_dataset_closure(
@@ -687,7 +687,7 @@ class TestRobustness:
         )
 
         # With T=2 and more samples, should converge well
-        tolerance = 0.1  # Adjusted tolerance for reduced samples
+        tolerance = 0.1  # Looser tolerance at this sample size
         assert (
             jnp.abs(result.log_marginal_likelihood() - exact_log_marginal) < tolerance
         )
@@ -703,7 +703,7 @@ class TestRobustness:
         emission_matrix = jnp.array([[0.95, 0.05], [0.05, 0.95]])
 
         T = 2  # Use simpler case
-        n_samples = 1000  # Reduced for memory constraints
+        n_samples = 1000  # Bounded by memory
 
         # Create closure for sample_hmm_dataset that captures T as static
         def sample_hmm_dataset_closure(
@@ -765,7 +765,7 @@ class TestRobustness:
             const(n_samples),
         )
 
-        tolerance = 0.1  # Adjusted tolerance for reduced samples
+        tolerance = 0.1  # Looser tolerance at this sample size
         assert (
             jnp.abs(result.log_marginal_likelihood() - exact_log_marginal) < tolerance
         )
@@ -1026,7 +1026,6 @@ class TestRejuvenationSMC:
         # Initial model arguments (for first timestep)
         initial_args = (0.0,)  # Starting with 0.0 as initial "previous observation"
 
-        # Run rejuvenation SMC with new API
         final_particles = seed(rejuvenation_smc)(
             key,
             sequential_model,
@@ -1105,7 +1104,7 @@ class TestRejuvenationSMC:
         )
 
         # Test convergence with different sample sizes
-        sample_sizes = [100, 300, 500, 800]  # Reduced for memory constraints
+        sample_sizes = [100, 300, 500, 800]  # Bounded by memory
         errors = []
 
         for i, n_particles in enumerate(sample_sizes):
@@ -1202,8 +1201,8 @@ class TestRejuvenationSMC:
         )
 
         # Test different sample sizes with multiple trials each
-        sample_sizes = [50, 100, 200, 400]  # Reduced max for memory constraints
-        n_trials = 3  # Reduced trials for faster testing
+        sample_sizes = [50, 100, 200, 400]  # Largest size bounded by memory
+        n_trials = 3  # Few trials keep the test fast
 
         mean_errors = []
         std_errors = []
@@ -1273,9 +1272,7 @@ class TestRejuvenationSMC:
             f"Best performance should be in larger half of sample sizes, but was at index {best_idx}"
         )
 
-    # =============================================================================
-    # LINEAR GAUSSIAN STATE SPACE MODEL TESTS
-    # =============================================================================
+    # Linear Gaussian state space model tests
 
     def test_rejuvenation_smc_linear_gaussian_convergence(self):
         """Test rejuvenation SMC convergence on linear Gaussian SSM with exact Kalman filtering comparison."""
@@ -1342,7 +1339,7 @@ class TestRejuvenationSMC:
         )
 
         # Test convergence with different sample sizes
-        sample_sizes = [200, 400, 600, 800]  # Reduced for memory constraints
+        sample_sizes = [200, 400, 600, 800]  # Bounded by memory
         errors = []
 
         for i, n_particles in enumerate(sample_sizes):
@@ -1499,7 +1496,7 @@ class TestRejuvenationSMC:
         )
 
         # Test with modest sample size for multidimensional case
-        n_particles = 500  # Reduced for 2D case
+        n_particles = 500  # Smaller for the 2D case
 
         # Run rejuvenation SMC
         final_particles = seed(rejuvenation_smc)(
@@ -1531,9 +1528,7 @@ class TestRejuvenationSMC:
         assert "state" in choices, "State should be in choices"
         assert "obs" in choices, "Observation should be in choices"
 
-    # =============================================================================
-    # DIAGNOSTIC TESTS FOR KALMAN VS SMC CONVERGENCE ISSUES
-    # =============================================================================
+    # Diagnostic tests for Kalman versus SMC convergence
 
     def test_kalman_filter_analytical_validation(self):
         """Test Kalman filter against known analytical results for simple cases."""

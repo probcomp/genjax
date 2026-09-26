@@ -23,9 +23,7 @@ from genjax.inference import (
 )
 
 
-# ============================================================================
-# MCMC-Specific Fixtures
-# ============================================================================
+# MCMC fixtures
 
 
 @pytest.fixture
@@ -82,9 +80,7 @@ def mcmc_tolerance():
     return 0.3
 
 
-# ============================================================================
-# Helper Functions for MCMC Post-Processing
-# ============================================================================
+# Helpers for MCMC post-processing
 
 
 def apply_burn_in(traces, burn_in_frac: float = 0.2):
@@ -110,9 +106,7 @@ def apply_burn_in(traces, burn_in_frac: float = 0.2):
     return post_burn_in_traces
 
 
-# ============================================================================
-# Helper Functions for Exact Posteriors
-# ============================================================================
+# Helpers for exact posteriors
 
 
 def exact_beta_bernoulli_posterior_moments(
@@ -163,9 +157,7 @@ def exact_normal_normal_posterior_moments(
     return posterior_mean, posterior_variance
 
 
-# ============================================================================
-# MCMC Data Structure Tests
-# ============================================================================
+# MCMC data structure tests
 
 
 @pytest.mark.mcmc
@@ -176,7 +168,6 @@ def test_mcmc_result_creation(simple_normal_model, mcmc_steps_small, mcmc_key, h
     initial_trace = simple_normal_model.simulate(0.0, 1.0)
     selection = sel("x")
 
-    # Create MH chain using new API
     def mh_kernel(trace):
         return mh(trace, selection)
 
@@ -188,13 +179,10 @@ def test_mcmc_result_creation(simple_normal_model, mcmc_steps_small, mcmc_key, h
     assert isinstance(result, MCMCResult)
     assert result.traces.get_choices()["x"].shape == (mcmc_steps_small.value,)
 
-    # Validate trace structure
     helpers.assert_valid_trace(result.traces)
 
 
-# ============================================================================
-# Beta-Bernoulli Posterior Tests
-# ============================================================================
+# Beta-Bernoulli posterior tests
 
 
 @pytest.mark.mcmc
@@ -222,14 +210,12 @@ def test_mh_beta_bernoulli_obs_true(
         mcmc_key, initial_trace, mcmc_steps_large, burn_in=const(burn_in_steps)
     )
 
-    # Extract p samples
     p_samples = result.traces.get_choices()["p"]
 
     # Compute sample moments
     sample_mean = jnp.mean(p_samples)
     sample_variance = jnp.var(p_samples)
 
-    # Exact posterior moments
     exact_mean, exact_variance, _, _ = exact_beta_bernoulli_posterior_moments(True)
 
     # Test moments are close to exact values
@@ -275,14 +261,12 @@ def test_mh_beta_bernoulli_obs_false(
         mcmc_key, initial_trace, mcmc_steps_large, burn_in=const(burn_in_steps)
     )
 
-    # Extract p samples
     p_samples = result.traces.get_choices()["p"]
 
     # Compute sample moments
     sample_mean = jnp.mean(p_samples)
     sample_variance = jnp.var(p_samples)
 
-    # Exact posterior moments
     exact_mean, exact_variance, _, _ = exact_beta_bernoulli_posterior_moments(False)
 
     # Test moments
@@ -299,9 +283,7 @@ def test_mh_beta_bernoulli_obs_false(
     )
 
 
-# ============================================================================
-# Hierarchical Normal Posterior Tests
-# ============================================================================
+# Hierarchical normal posterior tests
 
 
 @pytest.mark.mcmc
@@ -331,14 +313,12 @@ def test_mh_hierarchical_normal(
         mcmc_key, initial_trace, mcmc_steps_large, burn_in=const(burn_in_steps)
     )
 
-    # Extract mu samples
     mu_samples = result.traces.get_choices()["mu"]
 
     # Compute sample moments
     sample_mean = jnp.mean(mu_samples)
     sample_variance = jnp.var(mu_samples)
 
-    # Exact posterior moments
     exact_mean, exact_variance = exact_normal_normal_posterior_moments(y_observed)
 
     # Test moments
@@ -358,9 +338,7 @@ def test_mh_hierarchical_normal(
     )
 
 
-# ============================================================================
-# Bivariate Normal Tests
-# ============================================================================
+# Bivariate normal tests
 
 
 @pytest.mark.mcmc
@@ -390,7 +368,6 @@ def test_mh_bivariate_normal_marginal(
         mcmc_key, initial_trace, mcmc_steps_medium, burn_in=const(burn_in_steps)
     )
 
-    # Extract x samples
     x_samples = result.traces.get_choices()["x"]
 
     # For this model: x ~ N(0, 1), y | x ~ N(0.5*x, 0.5^2)
@@ -422,9 +399,7 @@ def test_mh_bivariate_normal_marginal(
     )
 
 
-# ============================================================================
-# MCMC Diagnostics Tests
-# ============================================================================
+# MCMC diagnostics tests
 
 
 @pytest.mark.mcmc
@@ -698,9 +673,7 @@ def test_chain_stationarity(
     )
 
 
-# ============================================================================
-# Distribution Moment Validation Tests
-# ============================================================================
+# Distribution moment validation tests
 
 
 @pytest.mark.mcmc
@@ -748,9 +721,7 @@ def test_exponential_moments(
     )
 
 
-# ============================================================================
-# Robustness Tests
-# ============================================================================
+# Robustness tests
 
 
 @pytest.mark.mcmc
@@ -810,9 +781,7 @@ def test_mcmc_result_structure(simple_normal_model, base_key, n_steps_val, helpe
     helpers.assert_valid_trace(result.traces)
 
 
-# ============================================================================
-# MALA (Metropolis-Adjusted Langevin Algorithm) Tests
-# ============================================================================
+# MALA (Metropolis-adjusted Langevin algorithm) tests
 
 
 @pytest.mark.mcmc
@@ -838,7 +807,6 @@ def test_mala_basic_functionality(
     assert isinstance(result, MCMCResult)
     assert result.traces.get_choices()["x"].shape == (mcmc_steps_small.value,)
 
-    # Validate trace structure
     helpers.assert_valid_trace(result.traces)
 
     # Check acceptance rate is valid for MALA (can be very high with good step sizes)
@@ -872,14 +840,12 @@ def test_mala_beta_bernoulli_convergence(
         mcmc_key, initial_trace, mcmc_steps_large, burn_in=const(burn_in_steps)
     )
 
-    # Extract p samples
     p_samples = result.traces.get_choices()["p"]
 
     # Compute sample moments
     sample_mean = jnp.mean(p_samples)
     sample_variance = jnp.var(p_samples)
 
-    # Exact posterior moments
     exact_mean, exact_variance, _, _ = exact_beta_bernoulli_posterior_moments(True)
 
     # Test moments are close to exact values
@@ -940,12 +906,8 @@ def test_mala_vs_mh_efficiency(
     def autocorr_lag1(samples):
         return jnp.corrcoef(samples[:-1], samples[1:])[0, 1]
 
-    # mh_autocorr = autocorr_lag1(mh_samples)
-    # mala_autocorr = autocorr_lag1(mala_samples)
-
     # MALA should have lower autocorrelation (better mixing) than MH
     # This is not guaranteed but expected on smooth posteriors
-    # mixing_improvement = mh_autocorr - mala_autocorr  # Could be used for future analysis
 
     # Test that both algorithms converge to similar posterior mean
     exact_mean, _ = exact_normal_normal_posterior_moments(y_observed)
@@ -1136,14 +1098,14 @@ def test_mala_acceptance_logic_works(simple_normal_model, mcmc_steps_small, mcmc
 def test_mala_multivariate_log_prob_fix():
     """Test MALA with multivariate parameters to ensure proper log probability summation.
 
-    This test specifically validates the fix for the vectorization issue where
-    normal.logpdf was returning arrays instead of scalars for multivariate parameters.
+    It guards against normal.logpdf returning arrays instead of scalars for
+    multivariate parameters.
     """
     key = jrand.PRNGKey(0)
 
     @gen
     def multivariate_model():
-        # Test with 3D state to ensure the fix works for any dimensionality
+        # A 3D state checks the log probability sum beyond one dimension.
         x = multivariate_normal(jnp.zeros(3), jnp.eye(3)) @ "state"
         return x
 
@@ -1154,7 +1116,7 @@ def test_mala_multivariate_log_prob_fix():
     def mala_kernel(trace):
         return mala(trace, sel("state"), step_size=0.1)
 
-    # This should not raise shape errors (the bug we fixed)
+    # This must not raise a shape error.
     new_trace = seed(mala_kernel)(jrand.split(key)[0], trace)
 
     # Check that state has correct shape
@@ -1273,7 +1235,6 @@ def test_mala_multiple_parameters(
         mcmc_key, initial_trace, mcmc_steps_medium, burn_in=const(burn_in_steps)
     )
 
-    # Extract x samples
     x_samples = result.traces.get_choices()["x"]
 
     # For this model: x ~ N(0, 1), y | x ~ N(0.5*x, 0.5^2)
@@ -1283,7 +1244,7 @@ def test_mala_multiple_parameters(
     # slope = 0.5
 
     # posterior_var = 1.0 / (1.0 / prior_var + slope**2 / likelihood_var)
-    # posterior_mean = posterior_var * (slope * y_observed / likelihood_var)  # Could be used for comparison
+    # posterior_mean = posterior_var * (slope * y_observed / likelihood_var)
 
     # Compute sample moments
     sample_mean = jnp.mean(x_samples)
@@ -1306,9 +1267,7 @@ def test_mala_multiple_parameters(
     )
 
 
-# =============================================================================
-# HMC (HAMILTONIAN MONTE CARLO) TESTS
-# =============================================================================
+# HMC (Hamiltonian Monte Carlo) tests
 
 
 def test_hmc_basic_functionality():

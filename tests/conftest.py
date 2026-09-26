@@ -15,9 +15,7 @@ from genjax import gen, normal, exponential
 from genjax.adev import expectation
 
 
-# ============================================================================
-# Random Key Fixtures
-# ============================================================================
+# Random key fixtures
 
 
 @pytest.fixture
@@ -40,9 +38,7 @@ def unique_key():
     return jrand.key(int(time.time() * 1000) % 2**32)
 
 
-# ============================================================================
-# Test Tolerance Fixtures
-# ============================================================================
+# Test tolerance fixtures
 
 
 @pytest.fixture
@@ -69,9 +65,7 @@ def convergence_tolerance():
     return 0.1
 
 
-# ============================================================================
-# Sample Size Fixtures
-# ============================================================================
+# Sample size fixtures
 
 
 @pytest.fixture
@@ -92,9 +86,7 @@ def large_sample_size():
     return 1000
 
 
-# ============================================================================
-# Common Model Fixtures
-# ============================================================================
+# Common model fixtures
 
 
 @pytest.fixture
@@ -147,9 +139,7 @@ def exponential_model():
     return model
 
 
-# ============================================================================
-# ADEV/Expectation Fixtures
-# ============================================================================
+# ADEV and expectation fixtures
 
 
 @pytest.fixture
@@ -176,9 +166,7 @@ def linear_expectation():
     return objective
 
 
-# ============================================================================
-# HMM Parameters Fixtures
-# ============================================================================
+# HMM parameter fixtures
 
 
 @pytest.fixture
@@ -217,9 +205,7 @@ def complex_hmm_params():
     }
 
 
-# ============================================================================
-# VI Test Fixtures
-# ============================================================================
+# VI test fixtures
 
 
 @pytest.fixture
@@ -245,9 +231,7 @@ def vi_simple_family():
     return family
 
 
-# ============================================================================
-# Test Data Fixtures
-# ============================================================================
+# Test data fixtures
 
 
 @pytest.fixture
@@ -272,9 +256,7 @@ def multivariate_test_data():
     }
 
 
-# ============================================================================
-# Test Utilities
-# ============================================================================
+# Test utilities
 
 
 class TestHelpers:
@@ -324,9 +306,7 @@ def helpers():
     return TestHelpers()
 
 
-# ============================================================================
-# Pytest Hooks and Configuration
-# ============================================================================
+# Pytest hooks and configuration
 
 
 def pytest_configure(config):
@@ -365,9 +345,7 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.tfp)
 
 
-# ============================================================================
-# JIT Compilation Fixtures for Test Optimization
-# ============================================================================
+# JIT compilation fixtures
 
 
 @pytest.fixture(scope="session")
@@ -462,9 +440,7 @@ def jitted_hmm_ops(jit_compiler):
     return ops
 
 
-# ============================================================================
-# Parametrized Test Data
-# ============================================================================
+# Parametrized test data
 
 # Common parameter sets for reuse across tests
 COMMON_TOLERANCES = [1e-6, 1e-8, 1e-10]

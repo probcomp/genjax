@@ -42,7 +42,7 @@ def create_simple_variational_family():
 
     @gen
     def variational_family(constraint, theta):
-        # Variational family now has access to constraints but doesn't need to use them
+        # The variational family receives the constraints and ignores them.
         normal_reinforce(theta, 1.0) @ "x"
 
     return variational_family

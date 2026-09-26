@@ -31,9 +31,7 @@ from genjax.pjax import seed, modular_vmap
 from genjax.distributions import normal, exponential, flip
 
 
-# =============================================================================
-# GENERATIVE FUNCTION (@gen) TESTS
-# =============================================================================
+# Generative function (@gen) tests
 
 
 @pytest.mark.core
@@ -48,7 +46,6 @@ def test_fn_simulate_vs_manual_density(
     choices = trace.get_choices()
     fn_score = trace.get_score()
 
-    # Validate trace structure
     helpers.assert_valid_trace(trace)
 
     # Extract individual choices
@@ -150,7 +147,6 @@ def test_fn_simulate_assess_consistency(standard_tolerance, helpers):
     simulate_score = trace.get_score()
     simulate_retval = trace.get_retval()
 
-    # Validate trace structure
     helpers.assert_valid_trace(trace)
 
     # Assess same choices
@@ -209,7 +205,6 @@ def test_fn_nested_addressing(standard_tolerance, helpers):
     choices = trace.get_choices()
     fn_score = trace.get_score()
 
-    # Validate trace structure
     helpers.assert_valid_trace(trace)
 
     # Extract nested choices
@@ -277,7 +272,6 @@ def test_fn_with_deterministic_computation(standard_tolerance, helpers):
     trace = mixed_fn.simulate(*args)
     choices = trace.get_choices()
 
-    # Validate trace structure
     helpers.assert_valid_trace(trace)
 
     assess_density, assess_retval = mixed_fn.assess(choices, *args)
@@ -374,7 +368,6 @@ def test_fn_conditional_sampling(standard_tolerance, helpers):
         trace = conditional_fn.simulate(*args)
         choices = trace.get_choices()
 
-        # Validate trace structure
         helpers.assert_valid_trace(trace)
 
         # Should be consistent between simulate and assess
@@ -396,9 +389,7 @@ def test_fn_conditional_sampling(standard_tolerance, helpers):
         )
 
 
-# =============================================================================
-# COND COMBINATOR TESTS
-# =============================================================================
+# Cond combinator tests
 
 
 @pytest.mark.core
@@ -407,8 +398,8 @@ def test_fn_conditional_sampling(standard_tolerance, helpers):
 def test_cond_update_with_vmap_regression(base_key, standard_tolerance, helpers):
     """Regression test for Cond.update with vmap.
 
-    This test verifies that Cond.update works correctly in vectorized contexts.
-    The bug was that jnp.select was used incorrectly with scalar conditions.
+    This test guards against a misuse of jnp.select with scalar conditions in
+    Cond.update.
     """
 
     # Define a simple conditional model
@@ -440,16 +431,14 @@ def test_cond_update_with_vmap_regression(base_key, standard_tolerance, helpers)
     trace = seed(vectorized_model.simulate)(base_key, values, conditions)
     helpers.assert_valid_trace(trace)
 
-    # Create new observations for update
     new_obs = jnp.array([1.1, 2.2, 2.9])
     constraints = {"points": {"result": {"obs": new_obs}}}
 
-    # This should NOT raise TypeError anymore
+    # Under vmap this update must not raise TypeError.
     new_trace, weight, discard = vectorized_model.update(
         trace, constraints, values, conditions
     )
 
-    # Verify the update worked correctly
     assert new_trace is not None
     assert weight.shape == ()  # Should be a scalar
     helpers.assert_valid_density(weight)
@@ -508,7 +497,6 @@ def test_cond_with_same_addresses_in_branches(base_key, standard_tolerance, help
     density, retval = mixture_model.assess(choices, 1.0)
     helpers.assert_valid_density(density)
 
-    # Test update
     new_choices = {"obs": {"y": 1.5}}
     new_trace, weight, discard = mixture_model.update(trace, new_choices, 1.0)
     helpers.assert_valid_density(weight)
@@ -523,9 +511,7 @@ def test_cond_with_same_addresses_in_branches(base_key, standard_tolerance, help
     )
 
 
-# =============================================================================
-# SCAN COMBINATOR TESTS
-# =============================================================================
+# Scan combinator tests
 
 
 @pytest.mark.core
@@ -558,7 +544,6 @@ def test_scan_simulate_vs_manual_density(base_key, standard_tolerance, helpers):
     choices = trace.get_choices()
     scan_score = trace.get_score()  # This is log(1/density), so negative log density
 
-    # Validate trace structure
     helpers.assert_valid_trace(trace)
 
     # Manually compute the density using the same choices
@@ -720,7 +705,6 @@ def test_scan_simulate_assess_consistency(base_key, standard_tolerance, helpers)
     simulate_score = trace.get_score()
     simulate_retval = trace.get_retval()
 
-    # Validate trace structure
     helpers.assert_valid_trace(trace)
 
     # Assess the same choices
@@ -783,7 +767,6 @@ def test_empty_scan(helpers):
     trace = scan_model.simulate(*args)
     final_carry, outputs = trace.get_retval()
 
-    # Validate trace structure
     helpers.assert_valid_trace(trace)
 
     assert jnp.allclose(final_carry, init_carry), (
@@ -819,7 +802,6 @@ def test_single_step_scan(base_key, standard_tolerance, helpers):
     trace = seed(scan_model.simulate)(base_key, *args)
     choices = trace.get_choices()
 
-    # Validate trace structure
     helpers.assert_valid_trace(trace)
 
     # Test assess with same choice
@@ -867,7 +849,6 @@ def test_scan_with_different_lengths(length, base_key, standard_tolerance, helpe
     trace = seed(scan_model.simulate)(test_key, *args)
     choices = trace.get_choices()
 
-    # Validate trace structure
     helpers.assert_valid_trace(trace)
 
     assess_density, assess_retval = scan_model.assess(choices, *args)
@@ -888,9 +869,7 @@ def test_scan_with_different_lengths(length, base_key, standard_tolerance, helpe
     assert trace.get_retval()[1].shape[0] == length, "Wrong number of outputs"
 
 
-# =============================================================================
-# GENERATIVE FUNCTION INTERFACE (GFI) METHOD TESTS
-# =============================================================================
+# Generative function interface (GFI) method tests
 
 
 class TestGenerateConsistency:
@@ -918,7 +897,6 @@ class TestGenerateConsistency:
             msg="Generate weight does not match assess density",
         )
 
-        # Check that trace score equals negative density
         helpers.assert_finite_and_close(
             trace.get_score(),
             -density,
@@ -926,7 +904,6 @@ class TestGenerateConsistency:
             msg="Trace score inconsistent with density",
         )
 
-        # Check return values match
         helpers.assert_finite_and_close(
             retval,
             sample_value,
@@ -969,7 +946,6 @@ class TestGenerateConsistency:
             msg="Generate weight does not match assess density for simple model",
         )
 
-        # Check that trace score equals negative density
         helpers.assert_finite_and_close(
             trace.get_score(),
             -density,
@@ -977,7 +953,6 @@ class TestGenerateConsistency:
             msg="Trace score inconsistent with density for simple model",
         )
 
-        # Check return values match
         expected_retval = 1.0 + 2.0
         helpers.assert_finite_and_close(
             retval,
@@ -1017,7 +992,6 @@ class TestGenerateConsistency:
         density, retval = hierarchical_model.assess(full_sample, *args)
         helpers.assert_valid_density(density)
 
-        # Generate weight should equal assess density
         helpers.assert_finite_and_close(
             weight,
             density,
@@ -1063,7 +1037,6 @@ class TestGenerateConsistency:
         # Test assess with same sample
         density, retval = scan_model.assess(full_sample, *args)
 
-        # Generate weight should equal assess density
         assert jnp.allclose(weight, density, rtol=1e-6), (
             f"Generate weight {weight} != assess density {density}"
         )
@@ -1853,9 +1826,7 @@ class TestUpdateAndRegenerate:
         assert jnp.isfinite(old_score)
 
 
-# =============================================================================
-# SELECTION TESTS
-# =============================================================================
+# Selection tests
 
 
 class TestSelection:
