@@ -1,4 +1,4 @@
-pixi.lock merge=binary linguist-language=YAML linguist-generated=true
+uv.lock merge=binary linguist-language=TOML linguist-generated=true
 docs/* linguist-documentation
 notebooks/* linguist-documentation
 site/* linguist-documentation
