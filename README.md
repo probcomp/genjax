@@ -19,10 +19,9 @@
 ```sh
 git clone https://github.com/a-tiny-project/genjax.git
 cd genjax
-pixi install
-pixi run test-fast
-pixi run paper-figures
-pixi run paper-figures-gpu
+uv sync --locked --group test
+uv run --locked --group test pytest tests/ -o addopts="" -q -n 4
+uv run --locked --group test xdoctest src/genjax
 ```
 
 ```python
@@ -39,26 +38,78 @@ choices = trace.get_choices()
 - Generative functions expose `simulate`, `generate`, `assess`, and `update`.
 - `vmap` and `modular_vmap` lift model and inference structure over explicit
   array axes.
-- Inspect all Pixi tasks in [pyproject.toml](pyproject.toml).
+
+## Development
+
+The lock covers Linux x86_64 and macOS arm64. The test group runs on Python
+3.12. Coverage uses the same group:
+
+```sh
+uv run --locked --group test pytest tests/ -v --cov=src/genjax --cov-report=xml --cov-report=html --cov-report=term
+uv run --locked --group test coverage report --show-missing
+```
+
+The format group holds the formatting tools. Run the hooks with:
+
+```sh
+uv run --locked --group format pre-commit run --all-files
+uv run --locked --group format pre-commit run prettier --hook-stage manual --all-files
+```
+
+Pre-commit supplies Node for Prettier. To remove generated figures:
+
+```sh
+find examples -type f -path '*/figs/*' \( -name '*.pdf' -o -name '*.png' -o -name '*.jpg' -o -name '*.svg' \) -delete
+```
 
 ## Paper cases
 
-| Case                      | Figures        | Command                                        |
-| ------------------------- | -------------- | ---------------------------------------------- |
-| Fair coin                 | 16a            | `pixi run paper-faircoin-gen`                  |
-| Curve fitting             | 4–6            | `pixi run paper-curvefit-gen`                  |
-| Multi-framework benchmark | 16b            | `pixi run paper-perfbench`                     |
-| Game of Life              | 18             | `pixi run assets && pixi run -e gol gol-paper` |
-| Localization              | 19             | `pixi run paper-localization-gen`              |
-| AIR estimators            | PLDI 2024 port | `pixi run air-compare`                         |
+Run these commands from the project root. Each example has its own dependency
+group, which uv installs from `uv.lock` as needed.
 
-- Add `--mode cuda` to `paper-perfbench` for its CUDA pipeline.
-- CPU and GPU execute the same models but have different scaling curves.
-- Figure 19 and paper-scale curve fitting require CUDA-like throughput to match
-  the published timing/ESS panels.
-- Gen.jl benchmark lanes require Julia 1.10 or newer.
-- Generated figures are saved in `figs/`. Perfbench outputs to separate CPU and
-  CUDA directories.
+| Case                      | Figures        | Command                                                                                                                                                                                  |
+| ------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fair coin                 | 16a            | `uv run --locked --group faircoin python -m examples.faircoin.main --combined --num-obs 50 --num-samples 2000 --repeats 10`                                                              |
+| Curve fitting             | 4–6            | `uv run --locked --group curvefit python -m examples.curvefit.main paper`                                                                                                                |
+| Multi-framework benchmark | 16b            | `uv run --locked --group perfbench python examples/perfbench/main.py pipeline`                                                                                                           |
+| Game of Life              | 18             | `uv run --locked --group gol python -m examples.gol.main --mode showcase`                                                                                                                |
+| Localization              | 19             | `uv run --locked --group localization python -m examples.localization.main paper --include-smc-comparison --n-particles 200 --n-steps 8 --timing-repeats 3 --n-rays 8 --output-dir figs` |
+| AIR estimators            | PLDI 2024 port | `uv run --locked python -m examples.air.main compare --small-config --num-examples 256 --epochs 2`                                                                                       |
+
+Create the shared output directory with `mkdir -p figs`, then run the fair coin,
+curve fitting, Game of Life, and localization commands in the table to produce
+the paper figures. The AIR training command is
+`uv run --locked python -m examples.air.main train --estimator enum --small-config --num-examples 256 --epochs 2`.
+The cone figures use
+`uv run --locked --extra viz python -m examples.cone.main fig2` and
+`uv run --locked --extra viz python -m examples.cone.main table4`.
+
+The Game of Life raster is an untracked input. Fetch the pinned copy before
+running that example and verify its digest:
+
+```sh
+mkdir -p examples/gol/assets
+curl -fsSL --retry 3 -o examples/gol/assets/wizards.jpg \
+  https://raw.githubusercontent.com/a-tiny-project/genjax/fec393b015e6113585f1cd425d2a6817a842b1d3/examples/gol/assets/wizards.jpg
+printf '%s\n' 'c680998ab5c25a505fdf0e1e03181d4275fbde66e1f1eb1da4cad13bf8db5cb1  examples/gol/assets/wizards.jpg' | sha256sum -c -
+```
+
+Fetch the multi-MNIST data for AIR with
+`uv run --locked --group perfbench-pyro python -m examples.air.main fetch-data --output examples/air/data/multi_mnist_uint8.npz --cache-root /tmp/air-data`.
+For GPU figures, add `--group cuda` to the corresponding uv command; the
+perfbench CUDA pipeline also takes `--mode cuda`. GPU AIR runs keep their
+shared-memory temporary directory and XLA flags:
+
+```sh
+TMPDIR=/dev/shm XLA_FLAGS='--xla_gpu_enable_triton_gemm=false --xla_gpu_autotune_level=0' uv run --locked --group cuda python -m examples.air.main train --dataset multi-mnist --data-path examples/air/data/multi_mnist_uint8.npz --num-examples 2048 --epochs 10 --batch-size 32 --eval-batch-size 128 --learning-rate 1e-4 --estimator enum
+TMPDIR=/dev/shm XLA_FLAGS='--xla_gpu_enable_triton_gemm=false --xla_gpu_autotune_level=0' uv run --locked --group cuda python -m examples.air.main compare --dataset multi-mnist --data-path examples/air/data/multi_mnist_uint8.npz --num-examples 2048 --epochs 10 --batch-size 32 --eval-batch-size 128 --learning-rate 1e-4
+```
+
+CPU and GPU execute the same models but have different scaling curves. Figure 19
+and paper-scale curve fitting require CUDA-like throughput to match the
+published timing/ESS panels. Gen.jl benchmark lanes require Julia 1.10 or newer.
+Generated figures are saved in `figs/`; perfbench outputs to separate CPU and
+CUDA directories.
 
 ## Code
 

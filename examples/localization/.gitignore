@@ -1,6 +1,5 @@
-# Pixi environment files
-.pixi/
-pixi.lock
+# Local uv environment files
+.venv/
 
 # Generated figures
 figs/*.pdf
