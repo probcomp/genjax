@@ -1548,6 +1548,62 @@ class TestAddressCollisionDetection:
         assert "used multiple times" in error_message
 
 
+class TestHandlerCleanup:
+    """Model exceptions must restore the enclosing execution context."""
+
+    @pytest.mark.parametrize(
+        "method", ["simulate", "generate", "assess", "update", "regenerate"]
+    )
+    @pytest.mark.parametrize("error_type", [ValueError, KeyboardInterrupt])
+    def test_model_exception_restores_handler(self, method, error_type):
+        from genjax.core import handler_stack
+
+        @gen
+        def model(fail):
+            if fail:
+                raise error_type("model failure")
+            return normal(0.0, 1.0) @ "x"
+
+        original_stack = tuple(handler_stack)
+        trace = model.simulate(False)
+        args = {
+            "simulate": (True,),
+            "generate": ({}, True),
+            "assess": ({"x": 0.0}, True),
+            "update": (trace, {}, True),
+            "regenerate": (trace, sel("x"), True),
+        }[method]
+
+        with pytest.raises(error_type, match="model failure"):
+            getattr(model, method)(*args)
+
+        assert tuple(handler_stack) == original_stack
+        assert jnp.isfinite(normal(0.0, 1.0))
+
+    def test_caught_child_exception_restores_parent_handler(self):
+        from genjax.core import handler_stack
+
+        @gen
+        def child():
+            normal(0.0, 1.0) @ "before_failure"
+            raise ValueError("child failure")
+
+        @gen
+        def parent():
+            try:
+                child() @ "child"
+            except ValueError:
+                pass
+            return normal(0.0, 1.0) @ "after_failure"
+
+        original_stack = tuple(handler_stack)
+        trace = parent.simulate()
+
+        assert tuple(handler_stack) == original_stack
+        assert set(trace.get_choices()) == {"after_failure"}
+        assert jnp.isfinite(trace.get_retval())
+
+
 class TestUpdateAndRegenerate:
     """Test update and regenerate methods for GFI implementations."""
 

@@ -2088,8 +2088,10 @@ class Fn(
         **kwargs,
     ) -> Tr[dict[str, Any], R]:
         handler_stack.append(Simulate(jnp.array(0.0), {}, self))
-        r = self.source.value(*args, **kwargs)
-        handler = handler_stack.pop()
+        try:
+            r = self.source.value(*args, **kwargs)
+        finally:
+            handler = handler_stack.pop()
         assert isinstance(handler, Simulate)
         score, trace_map = handler.score, handler.trace_map
         return Tr(self, (args, kwargs), trace_map, r, score)
@@ -2105,8 +2107,10 @@ class Fn(
             return tr, jnp.array(0.0)
         else:
             handler_stack.append(Generate(x, jnp.array(0.0), jnp.array(0.0), {}, self))
-            r = self.source.value(*args, **kwargs)
-            handler = handler_stack.pop()
+            try:
+                r = self.source.value(*args, **kwargs)
+            finally:
+                handler = handler_stack.pop()
             assert isinstance(handler, Generate)
             score, weight, trace_map = handler.score, handler.weight, handler.trace_map
             return Tr(self, (args, kwargs), trace_map, r, score), weight
@@ -2118,8 +2122,10 @@ class Fn(
         **kwargs,
     ) -> tuple[Density, R]:
         handler_stack.append(Assess(x, jnp.array(0.0), set(), self))
-        r = self.source.value(*args, **kwargs)
-        handler = handler_stack.pop()
+        try:
+            r = self.source.value(*args, **kwargs)
+        finally:
+            handler = handler_stack.pop()
         assert isinstance(handler, Assess)
         logp = handler.logp
         return logp, r
@@ -2135,8 +2141,10 @@ class Fn(
         handler_stack.append(
             Update(tr, x_, {}, {}, jnp.array(0.0), jnp.array(0.0), self)
         )
-        r = self.source.value(*args, **kwargs)
-        handler = handler_stack.pop()
+        try:
+            r = self.source.value(*args, **kwargs)
+        finally:
+            handler = handler_stack.pop()
         assert isinstance(handler, Update)
         trace_map, score, w, discard = (
             handler.trace_map,
@@ -2156,8 +2164,10 @@ class Fn(
         handler_stack.append(
             Regenerate(tr, s, {}, {}, jnp.array(0.0), jnp.array(0.0), self)
         )
-        r = self.source.value(*args, **kwargs)
-        handler = handler_stack.pop()
+        try:
+            r = self.source.value(*args, **kwargs)
+        finally:
+            handler = handler_stack.pop()
         assert isinstance(handler, Regenerate)
         trace_map, score, w, discard = (
             handler.trace_map,
