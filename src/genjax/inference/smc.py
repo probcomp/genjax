@@ -15,7 +15,20 @@ import jax
 import jax.numpy as jnp
 import jax.scipy.special
 
-from genjax.core import GFI, Trace, Pytree, X, R, Any, Weight, Const, Callable, const
+from genjax.core import (
+    GFI,
+    Trace,
+    Pytree,
+    X,
+    R,
+    Any,
+    Weight,
+    Const,
+    Callable,
+    Selection,
+    const,
+    sel,
+)
 from genjax.pjax import modular_vmap
 from genjax.distributions import categorical, uniform
 import jax.tree_util as jtu
@@ -783,6 +796,37 @@ def rejuvenation_smc(
         return final_particles
 
 
+def _choice_selection(choices: X) -> Selection:
+    """Select the addresses present in a possibly nested choice map."""
+    if choices is None:
+        return sel()
+    if isinstance(choices, dict):
+        return sel({addr: _choice_selection(value) for addr, value in choices.items()})
+    return sel(())
+
+
+def _retained_importance_sample(
+    target_gf: GFI[X, R],
+    target_args: tuple,
+    constraints: X,
+    retained_choices: X,
+    proposal_gf: GFI[X, Any] | None,
+    proposal_args: tuple,
+) -> tuple[Trace[X, R], Weight]:
+    merged_choices, _ = target_gf.merge(retained_choices, constraints)
+    retained_trace, target_weight = target_gf.generate(merged_choices, *target_args)
+    if proposal_gf is None:
+        _, latent_choices = target_gf.filter(
+            merged_choices, _choice_selection(constraints)
+        )
+        # With no observed-to-latent dependency, this weight is log Q(x_ret).
+        _, proposal_weight = target_gf.generate(latent_choices, *target_args)
+    else:
+        # Assessment visits only the proposal's addresses in the choice map.
+        proposal_weight, _ = proposal_gf.assess(merged_choices, *proposal_args)
+    return retained_trace, target_weight - proposal_weight
+
+
 def init_csmc(
     target_gf: GFI[X, R],
     target_args: tuple,
@@ -794,6 +838,14 @@ def init_csmc(
     """
     Initialize particle collection for conditional SMC with retained particle.
 
+    Particle 0 uses the same log importance weight as an ordinary particle
+    proposed at the retained choices: log p(x_ret, y) - log Q(x_ret).
+    Retained choices must include every latent choice and every custom proposal
+    address, and constraints take precedence at observed addresses.
+    With the default proposal, no latent choice's distribution may read an
+    observed choice, so generation with only retained latents constrained
+    gives log Q(x_ret).
+
     Args:
         target_gf: Target generative function (model)
         target_args: Arguments for target generative function
@@ -803,7 +855,7 @@ def init_csmc(
         proposal_gf: Optional custom proposal generative function
 
     Returns:
-        ParticleCollection where particle 0 matches retained_choices exactly
+        ParticleCollection where particle 0 carries retained latents and constraints
     """
     if n_samples.value < 1:
         raise ValueError("n_samples must be at least 1 for conditional SMC")
@@ -817,9 +869,13 @@ def init_csmc(
         proposal_gf=proposal_gf,
     )
 
-    # A fully constrained generation supplies the retained trace and its density.
-    retained_trace, retained_log_density = target_gf.generate(
-        retained_choices, *target_args
+    retained_trace, retained_log_weight = _retained_importance_sample(
+        target_gf,
+        target_args,
+        constraints,
+        retained_choices,
+        proposal_gf,
+        (constraints, *target_args),
     )
 
     traces = jtu.tree_map(
@@ -828,7 +884,7 @@ def init_csmc(
         retained_trace,
     )
 
-    new_log_weights = particles.log_weights.at[0].set(retained_log_density)
+    new_log_weights = particles.log_weights.at[0].set(retained_log_weight)
 
     return _create_particle_collection(
         traces=traces,
@@ -851,6 +907,14 @@ def extend_csmc(
 
     Like extend() but ensures particle 0 follows retained trajectory.
 
+    Particle 0 adds the same log importance weight as an ordinary extension
+    proposed at the retained choices: log p(x_ret, y) - log Q(x_ret).
+    Retained choices must include every latent choice and every custom proposal
+    address, and constraints take precedence at observed addresses.
+    With the default proposal, no latent choice's distribution may read an
+    observed choice, so generation with only retained latents constrained
+    gives log Q(x_ret).
+
     Args:
         particles: Current particle collection
         extended_target_gf: Extended target generative function
@@ -860,7 +924,7 @@ def extend_csmc(
         extension_proposal: Optional proposal for the extension
 
     Returns:
-        New ParticleCollection where particle 0 matches retained_choices
+        New ParticleCollection where particle 0 carries retained latents and constraints
     """
 
     def _single_extension_csmc(
@@ -875,13 +939,17 @@ def extend_csmc(
         else:
             args = (particle_args,)
 
-        # For retained particle (index 0), use retained_choices exactly
+        # For particle 0, retain the latents and apply the observed constraints.
         def retained_extension():
-            new_trace, log_density = extended_target_gf.generate(
-                retained_choices, *args
+            new_trace, log_weight = _retained_importance_sample(
+                extended_target_gf,
+                args,
+                constraints,
+                retained_choices,
+                extension_proposal,
+                (constraints, old_trace.get_choices(), *args),
             )
-            # Weight accumulation: old weight + log density
-            new_log_weight = old_log_weight + log_density
+            new_log_weight = old_log_weight + log_weight
             return new_trace, new_log_weight
 
         # For regular particles, use standard extension
