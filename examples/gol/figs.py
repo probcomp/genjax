@@ -9,10 +9,6 @@ import jax.random as jrand
 from . import core
 from .data import (
     get_blinker_n,
-    get_small_hermes_logo,
-    get_small_mit_logo,
-    get_small_popl_logo,
-    get_small_popl_logo_white_lambda,
     get_small_wizards_logo,
 )
 from genjax.timing import benchmark_with_warmup
@@ -51,7 +47,7 @@ def save_all_showcase_figures(
 
 
 def save_showcase_figure(
-    pattern_type="mit",
+    pattern_type="wizards",
     size=256,
     chain_length=150,
     flip_prob=0.03,
@@ -63,7 +59,7 @@ def save_showcase_figure(
     Generate and save the main Game of Life showcase figure.
 
     Args:
-        pattern_type: Type of pattern ("mit", "popl", "blinker", "hermes", "wizards")
+        pattern_type: Type of pattern ("wizards" or "blinker")
         size: Grid size for the pattern
         chain_length: Number of Gibbs sampling steps
         flip_prob: Probability of rule violations
@@ -256,12 +252,11 @@ def _gibbs_task(n: int, chain_length: int, flip_prob: float, seed: int):
 
 
 def create_showcase_figure(
-    pattern_type="mit",
+    pattern_type="wizards",
     size=256,
     chain_length=150,
     flip_prob=0.03,
     seed=42,
-    white_lambda=False,
     load_from_file=None,
 ):
     """
@@ -272,12 +267,11 @@ def create_showcase_figure(
     Panel 3: One-step evolution of final inferred state
 
     Args:
-        pattern_type: Type of pattern ("mit", "popl", "blinker", "hermes", "wizards")
+        pattern_type: Type of pattern ("wizards" or "blinker")
         size: Grid size for the pattern (default 256x256)
         chain_length: Number of Gibbs sampling steps
         flip_prob: Probability of rule violations
         seed: Random seed for reproducibility
-        white_lambda: Whether to use white lambda version of POPL logo
         load_from_file: Path to saved experiment data (if None, runs new experiment)
 
     Returns:
@@ -330,16 +324,7 @@ def create_showcase_figure(
 
     else:
         # Left panel: target state
-        if pattern_type == "mit":
-            target = get_small_mit_logo(size)
-        elif pattern_type == "popl":
-            if white_lambda:
-                target = get_small_popl_logo_white_lambda(size)
-            else:
-                target = get_small_popl_logo(size)
-        elif pattern_type == "hermes":
-            target = get_small_hermes_logo(size)
-        elif pattern_type == "wizards":
+        if pattern_type == "wizards":
             target = get_small_wizards_logo(size)
         else:
             target = get_blinker_n(size)
