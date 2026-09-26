@@ -56,8 +56,8 @@ def load_module(framework_name):
     return module
 
 
-# Import the data generation function too
-from timing_benchmarks.data.generation import generate_polynomial_data
+# The benchmark source directory must be on sys.path before this import.
+from timing_benchmarks.data.generation import generate_polynomial_data  # noqa: E402
 
 
 def run_framework_hmc(
@@ -342,7 +342,7 @@ def main():
     print("\n" + "=" * 60)
     print("HMC benchmarking complete!")
     print("=" * 60)
-    print(f"\nRun the following to generate comparison plots:")
+    print("\nRun the following to generate comparison plots:")
     print(f"python combine_results.py --frameworks {' '.join(args.frameworks)}")
 
 

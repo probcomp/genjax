@@ -423,7 +423,6 @@ def test_cond_update_with_vmap_regression(base_key, standard_tolerance, helpers)
         return results
 
     # Test data
-    n_points = 3
     values = jnp.array([1.0, 2.0, 3.0])
     conditions = jnp.array([True, False, True])
 

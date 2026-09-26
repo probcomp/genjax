@@ -469,7 +469,7 @@ class TestADEVGradientComputation:
         low = 0.0
         high = 1.0
 
-        seeded_grad = seed(lambda l, h: objective.grad_estimate(l, h))
+        seeded_grad = seed(lambda lower, upper: objective.grad_estimate(lower, upper))
         keys = jrand.split(jrand.key(600), 1024)
         grad_low, grad_high = jax.vmap(
             seeded_grad,

@@ -171,11 +171,7 @@ def pyro_polynomial_is_timing(
 
         # Choose implementation based on device and particle count
         if device.type == "cuda" and n_particles >= 100:
-            try:
-                importance_sampling = importance_sampling_vectorized
-            except:
-                # Fall back to traced version if vectorized fails
-                importance_sampling = importance_sampling_traced
+            importance_sampling = importance_sampling_vectorized
         else:
             importance_sampling = importance_sampling_traced
 
