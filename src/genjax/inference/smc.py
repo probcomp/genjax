@@ -220,7 +220,10 @@ class ParticleCollection(Pytree):
         """
         Compute weighted estimate of a function applied to particle traces.
 
-        Properly accounts for importance weights to give unbiased estimates.
+        This self-normalized importance sampling estimate is consistent but
+        biased at finite sample sizes. The quantity
+        exp(log_marginal_likelihood()) is an unbiased estimate of the marginal
+        likelihood Z. The log estimate itself is generally biased for log Z.
 
         Args:
             fn: Function to apply to each particle's choices (X -> Any)
