@@ -193,7 +193,6 @@ def stage(f, **params):
         ```
     """
 
-    @wraps(f)
     def wrapped(
         *args, **kwargs
     ) -> tuple[ClosedJaxpr, tuple[list[Any], Any, Callable[..., Any]]]:
@@ -209,7 +208,10 @@ def stage(f, **params):
         closed_jaxpr = cached_stage_dynamic(flat_fun, tuple(flat_avals))
         return closed_jaxpr, (flat_args, in_tree, out_tree)
 
-    return wrapped
+    # Apply source names after the import hook type-checks the wrapper.
+    return wraps(f, assigned=("__module__", "__name__", "__qualname__", "__doc__"))(
+        wrapped
+    )
 
 
 # Custom JAX primitives
@@ -833,7 +835,7 @@ class FlatSamplerCache:
         JAX interpreters can work with efficiently.
         """
 
-        @wraps(f)
+        @wraps(f, assigned=("__module__", "__name__", "__qualname__", "__doc__"))
         def _make_flat_inner(*args, **kwargs):
             debug_info = api_util.debug_info("_make_flat", f, args, kwargs)
             jaxpr, *_ = stage(f)(*args, **kwargs)
@@ -1675,7 +1677,7 @@ def modular_vmap(
         the modular_vmap directly.
     """
 
-    @wraps(f)
+    @wraps(f, assigned=("__module__", "__name__", "__qualname__", "__doc__"))
     def wrapped(*args):
         # Quickly throw if "normal" vmap would fail.
         jax.vmap(

@@ -363,7 +363,7 @@ def state(f: Callable[..., Any]):
         >>> print(state_dict)  # {"intermediate": 6, "doubled": 10}
     """
 
-    @wraps(f)
+    @wraps(f, assigned=("__module__", "__name__", "__qualname__", "__doc__"))
     def wrapped(*args):
         interpreter = State(collected_state={}, namespace_stack=[])
         return interpreter.eval(f, *args)

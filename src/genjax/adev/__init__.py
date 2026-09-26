@@ -728,11 +728,13 @@ class ADEVProgram(Pytree):
         """
 
         def adev_jvp(f):
-            @wraps(f)
             def wrapped(*duals: DualTree):
                 return ADEV.forward_mode(self.source.value, dual_kont)(*duals)
 
-            return wrapped
+            # Type-check the dual signature before copying source metadata.
+            return wraps(
+                f, assigned=("__module__", "__name__", "__qualname__", "__doc__")
+            )(wrapped)
 
         return adev_jvp(self.source.value)(*duals)
 
