@@ -947,14 +947,12 @@ def enumerative_gibbs_outliers(trace, xs, ys, outlier_rate=0.1):
         # For is_outlier = False
         chm_false = {"is_outlier": False, "y": {"obs": y_obs}}
         log_prob_false, _ = point_with_outliers.assess(
-            chm_false, x, curve, outlier_rate, 0.0, 2.0
+            chm_false, x, curve, outlier_rate
         )
 
         # For is_outlier = True
         chm_true = {"is_outlier": True, "y": {"obs": y_obs}}
-        log_prob_true, _ = point_with_outliers.assess(
-            chm_true, x, curve, outlier_rate, 0.0, 2.0
-        )
+        log_prob_true, _ = point_with_outliers.assess(chm_true, x, curve, outlier_rate)
 
         # Sample new outlier indicator
         new_is_outlier = (
