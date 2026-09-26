@@ -22,9 +22,7 @@ from matplotlib.ticker import MaxNLocator
 import numpy as np
 from typing import Optional
 
-# =============================================================================
-# FIGURE SIZES - Standardized dimensions for LaTeX integration
-# =============================================================================
+# Figure sizes for LaTeX
 
 FIGURE_SIZES = {
     # Single-panel figures (4:3 aspect ratio for readability)
@@ -46,9 +44,7 @@ FIGURE_SIZES = {
     "smc_comparison": (16, 12),  # 4-row SMC method comparison (localization)
 }
 
-# =============================================================================
-# COLOR PALETTE - Colorblind-friendly, consistent across methods
-# =============================================================================
+# Color palette
 
 PRIMARY_COLORS = {
     # Core method colors
@@ -84,9 +80,7 @@ SMC_METHOD_COLORS = {
     "smc_locally_optimal": "#CC3311",  # Red (locally optimal)
 }
 
-# =============================================================================
-# TYPOGRAPHY STANDARDS
-# =============================================================================
+# Typography
 
 FONT_HIERARCHY = {
     "main_text": 18,  # Base text size
@@ -105,9 +99,7 @@ FONT_WEIGHTS = {
     "default": "normal",  # Everything else normal weight
 }
 
-# =============================================================================
-# VISUAL ELEMENT SPECIFICATIONS
-# =============================================================================
+# Visual elements
 
 LINE_SPECS = {
     "curve_main": {"linewidth": 3, "alpha": 0.9},  # Main polynomial curves
@@ -173,9 +165,7 @@ ALPHA_VALUES = {
     "lidar_rays": 0.3,  # LIDAR ray lines
 }
 
-# =============================================================================
-# LEGEND STYLING
-# =============================================================================
+# Legend styling
 
 LEGEND_SPECS = {
     "framealpha": 0.9,  # Semi-transparent background
@@ -196,9 +186,7 @@ LEGEND_POSITIONS = {
     "center": "center",  # For standalone legend figures
 }
 
-# =============================================================================
-# GRID AND TICK CONFIGURATION
-# =============================================================================
+# Grid and ticks
 #
 # GRVS STANDARD: 3-TICK CONFIGURATION
 # All figures should use exactly 3 tick marks per axis for optimal readability
@@ -222,9 +210,7 @@ TICK_SPECS = {
     "scaling": {"x": 5, "y": 5},  # Maximum detail for scaling plots (avoid if possible)
 }
 
-# =============================================================================
-# SAVE CONFIGURATION
-# =============================================================================
+# Save settings
 
 SAVE_SPECS = {
     "dpi": 300,  # High resolution for publication
@@ -233,9 +219,7 @@ SAVE_SPECS = {
     "pad_inches": 0.05,  # Small padding for legends
 }
 
-# =============================================================================
-# CORE FUNCTIONS
-# =============================================================================
+# Core functions
 
 
 def setup_publication_fonts():
@@ -414,9 +398,7 @@ def create_method_legend(methods: list, filename: Optional[str] = None) -> plt.F
     return fig
 
 
-# =============================================================================
-# CONVENIENCE FUNCTIONS FOR COMMON PATTERNS
-# =============================================================================
+# Convenience functions
 
 
 def setup_comparison_plot(
@@ -496,9 +478,7 @@ def finalize_comparison_plot(
     set_minimal_ticks(ax)
 
 
-# =============================================================================
-# VALIDATION FUNCTIONS
-# =============================================================================
+# Validation functions
 
 
 def validate_grvs_compliance(fig) -> dict[str, bool]:
