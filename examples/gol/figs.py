@@ -9,6 +9,10 @@ import jax.random as jrand
 from . import core
 from .data import (
     get_blinker_n,
+    get_small_hermes_logo,
+    get_small_mit_logo,
+    get_small_popl_logo,
+    get_small_popl_logo_white_lambda,
     get_small_wizards_logo,
 )
 from genjax.timing import benchmark_with_warmup
@@ -44,22 +48,6 @@ def save_all_showcase_figures(
     )
     save_timing_bar_plot()
     print("\n=== Game of Life showcase figures generated successfully! ===")
-
-
-if __name__ == "__main__":
-    # Default behavior: generate all figures with standard parameters
-    print("=== Running all Game of Life visualizations ===")
-
-    save_blinker_gibbs_figure()
-    save_logo_gibbs_figure(chain_length=0)  # Initial state
-    save_logo_gibbs_figure(chain_length=250)  # After inference
-    save_logo_gibbs_figure(logo_type="popl", chain_length=25)  # POPL logo
-    save_timing_scaling_figure(device="cpu")
-
-    # Also generate showcase figures
-    save_all_showcase_figures()
-
-    print("\n=== All figures generated! ===")
 
 
 def save_showcase_figure(
@@ -337,6 +325,7 @@ def create_showcase_figure(
 
         run_summary = MockRunSummary(exp_data)
         final_pred_post = exp_data["metadata"]["final_pred_post"]
+        final_n_bit_flips = exp_data["metadata"]["final_n_bit_flips"]
         accuracy = exp_data["metadata"]["final_accuracy"]
 
     else:
@@ -481,7 +470,6 @@ def create_showcase_figure(
     print(
         f"Final reconstruction errors: {final_n_bit_flips} bits ({accuracy:.1f}% accuracy)"
     )
-    final_n_bit_flips = run_summary.n_incorrect_bits_in_reconstructed_image(target)
 
     # Add aligned titles using figure coordinates
     # Calculate positions based on axes locations
