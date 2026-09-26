@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """
 GenJAX Research Visualization Standards (GRVS)
 
@@ -15,6 +13,8 @@ Usage:
     apply_grid_style(ax)
     save_publication_figure(fig, "output.pdf")
 """
+
+from __future__ import annotations
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
