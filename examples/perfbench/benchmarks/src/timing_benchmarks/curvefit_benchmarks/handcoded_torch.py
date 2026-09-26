@@ -284,7 +284,6 @@ def handcoded_torch_polynomial_hmc_timing(
     else:
         run_hmc_compiled = run_hmc
 
-    # Timing function
     def task():
         samples = run_hmc_compiled()
         if device.type == "cuda":

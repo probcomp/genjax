@@ -13,7 +13,6 @@ import tensorflow_probability.substrates.jax as tfp
 from genjax.timing import benchmark_with_warmup
 from ..data.generation import PolynomialDataset
 
-# TFP distributions
 tfd = tfp.distributions
 
 
@@ -66,7 +65,6 @@ def handcoded_jax_polynomial_is_timing(
     # JIT compile the inference function with static n_particles
     jitted_is = jax.jit(importance_sampling, static_argnums=(3,))
 
-    # Define task for benchmarking
     def task():
         result = jitted_is(key, xs, ys, n_particles)
         # Block only on log weights for fair comparison
@@ -189,10 +187,8 @@ def handcoded_jax_polynomial_hmc_timing(
         # Return samples after warmup
         return samples[n_warmup:]
 
-    # JIT compile
     jitted_hmc = jax.jit(run_hmc)
 
-    # Timing function
     def task():
         samples = jitted_hmc(key)
         jax.block_until_ready(samples)

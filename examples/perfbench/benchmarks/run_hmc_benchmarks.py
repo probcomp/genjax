@@ -33,8 +33,6 @@ def ensure_jax_backend():
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-# Import PolynomialDataset from the correct location
-
 
 def load_module(framework_name):
     """Dynamically load a framework module."""
@@ -72,12 +70,10 @@ def run_framework_hmc(
     **kwargs,
 ):
     """Run HMC benchmark for a specific framework."""
-    # Load the framework module
     module = load_module(framework)
     if module is None:
         return None
 
-    # Get the HMC timing function
     hmc_fn_name = f"{framework}_polynomial_hmc_timing"
     if not hasattr(module, hmc_fn_name):
         print(f"Warning: {hmc_fn_name} not found in {framework} module")
@@ -87,7 +83,7 @@ def run_framework_hmc(
 
     # Prepare framework-specific kwargs
     if framework == "numpyro":
-        # NumPyro now uses fixed n_leapfrog like other frameworks
+        # NumPyro takes a fixed n_leapfrog like the other frameworks.
         framework_kwargs = {
             "step_size": kwargs.get("step_size", 0.01),
             "n_leapfrog": kwargs.get("n_leapfrog", 20),

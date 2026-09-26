@@ -59,7 +59,7 @@ def pyro_polynomial_is_timing(
 
             return a, b, c
 
-        # Optimized trace-based importance sampling
+        # Trace-based importance sampling
         def importance_sampling_traced():
             # Pre-allocate tensors on correct device
             a_samples = torch.zeros(n_particles, device=device)
@@ -84,7 +84,7 @@ def pyro_polynomial_is_timing(
                     b_samples[i] = trace.nodes["b"]["value"]
                     c_samples[i] = trace.nodes["c"]["value"]
 
-                    # Compute log weight more efficiently
+                    # Compute the log weight
                     # Only compute log prob for latent variables (not observed)
                     log_weight = (
                         trace.nodes["a"]["fn"].log_prob(trace.nodes["a"]["value"])

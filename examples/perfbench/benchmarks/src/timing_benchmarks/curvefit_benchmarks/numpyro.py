@@ -1,8 +1,7 @@
 """NumPyro benchmark implementations for polynomial regression.
 
 This module contains NumPyro-specific models and timing functions for
-polynomial regression with importance sampling, using direct distribution sampling
-for optimal performance.
+polynomial regression with importance sampling, using direct distribution sampling.
 """
 
 from typing import Dict, Any, Optional
@@ -97,7 +96,6 @@ def numpyro_polynomial_is_timing(
     # JIT compile the inference function with static n_particles
     jitted_is = jax.jit(importance_sampling_traced, static_argnums=(3,))
 
-    # Define task for benchmarking
     def task():
         result = jitted_is(key, xs, ys, n_particles)
         # Block only on log weights for fair comparison

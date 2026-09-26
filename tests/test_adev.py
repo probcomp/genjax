@@ -39,7 +39,6 @@ def test_flip_exact_loss_jvp():
         p_dual = flip_exact_loss.jvp_estimate(Dual(p, 1.0))
         expected_tangent = p - 0.5
 
-        # Test that the tangent matches the expected value
         assert jnp.allclose(p_dual.tangent, expected_tangent, atol=1e-6)
 
 
@@ -58,7 +57,6 @@ def test_flip_exact_loss_at_half():
     """Test the loss function at p=0.5."""
     p_dual = flip_exact_loss.jvp_estimate(Dual(0.5, 1.0))
 
-    # At p=0.5, the tangent should be 0
     assert jnp.allclose(p_dual.tangent, 0.0, atol=1e-6)
 
 
@@ -101,10 +99,8 @@ def test_flip_enum_distribution_sample_matches_probability_parameterization():
     assert jnp.allclose(jnp.mean(samples), p, atol=0.03)
 
 
-###############################################################################
 # Regression tests for flat_keyful_sampler error
 # These tests ensure ADEV estimators work correctly with seed + addressing
-###############################################################################
 
 
 class TestADEVSeedCompatibility:
@@ -564,7 +560,6 @@ class TestADEVErrorConditions:
     def test_flat_keyful_sampler_error_prevention(self):
         """Specific test to ensure flat_keyful_sampler error doesn't return."""
 
-        # This test specifically targets the error case that was fixed
         @gen
         def adev_with_addressing():
             x = normal_reparam(1.0, 0.5) @ "param"
@@ -574,10 +569,9 @@ class TestADEVErrorConditions:
             )
             return jnp.sum(y)
 
-        # This exact pattern previously caused KeyError: 'flat_keyful_sampler'
+        # This pattern must not raise KeyError: 'flat_keyful_sampler'.
         try:
             result = seed(adev_with_addressing.simulate)(jrand.key(999))
-            # If we get here, the error is fixed
             assert "param" in result.get_choices()
             assert "mvn_param" in result.get_choices()
             assert result.get_choices()["mvn_param"].shape == (2,)

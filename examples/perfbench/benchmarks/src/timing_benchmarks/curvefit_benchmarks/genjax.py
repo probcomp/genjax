@@ -1,6 +1,6 @@
 """GenJAX benchmark implementation for polynomial regression.
 
-This implementation uses a flattened model structure for optimal performance.
+This implementation uses a flattened model structure.
 """
 
 from typing import Dict, Any, Optional
@@ -14,7 +14,7 @@ from genjax.timing import benchmark_with_warmup
 from timing_benchmarks.data.generation import PolynomialDataset
 
 
-### Optimized GenJAX Model ###
+# GenJAX model
 
 
 @gen
@@ -34,7 +34,7 @@ def polynomial_flat(xs):
     return ys
 
 
-### Optimized Inference Function ###
+# Inference function
 
 
 def make_genjax_infer_is(n_particles: int):
@@ -64,7 +64,7 @@ def make_genjax_infer_is(n_particles: int):
     return infer
 
 
-### Timing Functions ###
+# Timing functions
 
 
 def genjax_polynomial_is_timing(
@@ -181,7 +181,7 @@ def genjax_polynomial_hmc_timing(
     constraints = {"ys": ys}
     init_trace, _ = polynomial_flat.generate(constraints, xs)
 
-    # Create inference function WITHOUT key parameter - seed will add it
+    # Create inference function without a key parameter, which seed adds
     def run_hmc():
         # Total steps = warmup + samples
         total_steps = n_warmup + n_samples
@@ -203,7 +203,6 @@ def genjax_polynomial_hmc_timing(
     # Since run_hmc has no args, seeded version will just take (key)
     jitted_hmc = jax.jit(seed(run_hmc))
 
-    # Timing function
     def task():
         samples = jitted_hmc(key)
         jax.block_until_ready(samples["a"])

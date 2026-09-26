@@ -196,9 +196,6 @@ def create_hmc_comparison_plot(results_df, output_dir):
             # Sort by time (fastest first)
             chain_data = chain_data.sort_values("time_ms")
 
-            # Don't filter out handcoded baseline - we'll show it as a bar
-            # chain_data = chain_data[chain_data['framework'] != 'handcoded_jax']
-
             # Calculate bar width based on number of frameworks
             n_frameworks = len(chain_data)
             if n_frameworks == 0:
@@ -453,9 +450,9 @@ def create_plots(df, output_dir):
         "handcoded_jax": "gold",  # Same as faircoin (handcoded baseline)
         "numpyro": "coral",  # Same as faircoin
         "pyro": "mediumseagreen",  # Distinctive green
-        "genjl": "#AA3377",  # Purple/Red (keeping original)
+        "genjl": "#AA3377",
         "genjl_optimized": "#CC77AA",  # Lighter Purple (static+Map)
-        "genjl_dynamic": "darkblue",  # Dark blue as requested
+        "genjl_dynamic": "darkblue",
         "handcoded_torch": "darkslategray",  # Distinctive dark gray-blue
     }
 
@@ -510,9 +507,6 @@ def create_plots(df, output_dir):
 
             # Sort by time (fastest first)
             particle_data = particle_data.sort_values("time_ms")
-
-            # Don't filter out handcoded baseline - we'll show it as a bar
-            # particle_data = particle_data[particle_data['framework'] != 'handcoded_jax']
 
             # Calculate bar width based on number of frameworks
             n_frameworks = len(particle_data)
@@ -606,10 +600,9 @@ def create_plots(df, output_dir):
             "(Importance Sampling) Number of Particles", fontsize=14, fontweight="bold"
         )
         ax2.set_ylabel("Wall clock time (ms)", fontsize=14, fontweight="bold")
-        # Remove title for paper integration
         ax2.set_xticks(x)
         ax2.set_xticklabels([f"{int(n):,}" for n in n_particles_list])
-        # Remove individual legend - will add single legend at bottom
+        # A single legend is added at the bottom
         ax2.grid(False)  # No grid, matching faircoin style
         ax2.set_yscale("log")
         ax2.tick_params(labelsize=12)
