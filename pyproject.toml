@@ -55,6 +55,10 @@ path = "README.md"
 pattern = '\]\((?!https?://|mailto:|#)([^)\s]+)\)'
 replacement = '](https://github.com/a-tiny-project/genjax/blob/main/\1)'
 
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+pattern = 'src="logo\.svg"'
+replacement = 'src="https://raw.githubusercontent.com/a-tiny-project/genjax/main/logo.png"'
+
 [tool.vulture]
 make_whitelist = true
 min_confidence = 80
